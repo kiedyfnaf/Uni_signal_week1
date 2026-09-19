@@ -16,6 +16,8 @@ const controls = { search: document.querySelector('#filterSearch'), category: ca
 const results = document.querySelector('#filterResults');
 const resultCount = document.querySelector('#resultCount');
 const filterSummary = document.querySelector('#filterSummary');
+const activeFilters = document.querySelector('#activeFilters');
+const genreSelectionCount = document.querySelector('#genreSelectionCount');
 function scoresFor(manga) { return manga.ratings?.length ? categories.map((category) => manga.ratings.find((rating) => rating.category === category)?.score ?? 0) : rankingScores[manga.title] || categories.map((_, index) => Number((7 + ((index * 7) % 29) / 10).toFixed(1))); }
 function averageFor(manga) { return scoresFor(manga).reduce((sum, score) => sum + score, 0) / categories.length; }
 function visitorAverageFor(manga) { const ratings = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}')[manga.title]?.ratings || []; return ratings.length ? ratings.reduce((sum, score) => sum + score, 0) / ratings.length : null; }
@@ -23,6 +25,7 @@ function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, (cha
 function render() {
   const query = controls.search.value.trim().toLowerCase();
   const selectedGenres = [...genreCheckboxes.querySelectorAll('input:checked')].map((input) => input.value.toLowerCase());
+  genreSelectionCount.textContent = selectedGenres.length ? `${selectedGenres.length} selected` : 'All genres';
   const category = controls.category.value;
   const categoryIndex = categories.indexOf(category);
   const minimum = Number(controls.score.value);
@@ -48,6 +51,12 @@ function render() {
   });
   resultCount.textContent = `${matches.length} result${matches.length === 1 ? '' : 's'}`;
   filterSummary.textContent = selectedGenres.length ? `Genres: ${selectedGenres.join(', ')}` : 'Showing all genres';
+  activeFilters.innerHTML = selectedGenres.map((genre) => `<button type="button" class="active-filter" data-genre="${genre}">${genre} ×</button>`).join('');
+  activeFilters.querySelectorAll('button').forEach((button) => button.addEventListener('click', () => {
+    const checkbox = [...genreCheckboxes.querySelectorAll('input')].find((input) => input.value.toLowerCase() === button.dataset.genre);
+    if (checkbox) checkbox.checked = false;
+    render();
+  }));
   results.classList.toggle('list-view', controls.view.value === 'list');
   results.innerHTML = matches.map((manga) => {
     const score = category === 'all' ? averageFor(manga) : scoresFor(manga)[categoryIndex];
@@ -58,5 +67,7 @@ function render() {
 }
 genreCheckboxes.addEventListener('change', render);
 Object.values(controls).forEach((control) => control.addEventListener('input', render));
+document.querySelector('#selectAllGenres').addEventListener('click', () => { genreCheckboxes.querySelectorAll('input').forEach((input) => { input.checked = true; }); render(); });
+document.querySelector('#clearGenres').addEventListener('click', () => { genreCheckboxes.querySelectorAll('input').forEach((input) => { input.checked = false; }); render(); });
 document.querySelector('#clearFilters').addEventListener('click', () => { controls.search.value = ''; genreCheckboxes.querySelectorAll('input').forEach((input) => { input.checked = false; }); controls.category.value = 'all'; controls.score.value = '0'; controls.visitorScore.value = '0'; controls.date.value = 'all'; controls.sort.value = 'score'; controls.direction.value = 'desc'; controls.view.value = 'grid'; render(); });
 render();
