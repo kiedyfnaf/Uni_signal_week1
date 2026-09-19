@@ -44,7 +44,7 @@
 
         <section class="welcome-row" id="explore">
           <div><p class="eyebrow">Thursday, September 19</p><h1>My manga journal<span>.</span></h1><p class="subheading">Personal notes on the stories I am reading and loving.</p></div>
-          <button class="button button-dark" id="openPost"><span>✎</span> Edit my journal</button>
+          <a class="button button-dark" href="manga-editor.html"><span>✎</span> Add manga</a>
         </section>
 
         <section class="stats-grid" aria-label="Journal summary">
@@ -79,7 +79,6 @@
       </main>
     </div>
 
-    <dialog id="postDialog" class="post-dialog"><button class="close-dialog" id="closePost" aria-label="Close">×</button><p class="eyebrow">Owner editor</p><h2>Edit a journal entry.</h2><p class="dialog-copy">This is the private writing space for Lucia’s manga journal. Visitors can read entries but cannot edit them.</p><form id="postForm"><label>Title<input name="title" required placeholder="E.g. Nausicaä of the Valley of the Wind" /></label><label>Author<input name="author" required placeholder="E.g. Hayao Miyazaki" /></label><label>Genre<input name="genre" required placeholder="E.g. Adventure / Fantasy" /></label><label>My note<textarea name="note" rows="3" required placeholder="What stayed with you?"></textarea></label><label>My rating <span class="rating-input" aria-label="5-star rating"><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button></span></label><button class="button button-dark submit-button" type="submit">Save journal entry <span>→</span></button></form></dialog>
     <script src="app.js"></script>
   </body>
 </html>

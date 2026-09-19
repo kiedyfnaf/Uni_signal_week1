@@ -1,8 +1,6 @@
 const searchInput = document.querySelector('#searchInput');
 let cards = [...document.querySelectorAll('.manga-card')];
 const emptyState = document.querySelector('#emptyState');
-const postDialog = document.querySelector('#postDialog');
-const postForm = document.querySelector('#postForm');
 
 function filterManga() {
   const query = searchInput.value.trim().toLowerCase();
@@ -31,40 +29,30 @@ document.querySelectorAll('.save-button').forEach((button) => {
   });
 });
 
-document.querySelector('#openPost').addEventListener('click', () => postDialog.showModal());
-document.querySelector('#closePost').addEventListener('click', () => postDialog.close());
-postDialog.addEventListener('click', (event) => {
-  if (event.target === postDialog) postDialog.close();
-});
+function escapeHtml(value) {
+  return String(value).replace(/[&<>'"]/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
+  }[character]));
+}
 
-document.querySelectorAll('.rating-input button').forEach((button, index, buttons) => {
-  button.addEventListener('click', () => {
-    buttons.forEach((item, itemIndex) => item.classList.toggle('selected', itemIndex <= index));
+function loadSavedEntries() {
+  const entries = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
+  const grid = document.querySelector('#mangaGrid');
+  entries.forEach((entry) => {
+    const card = document.createElement('article');
+    card.className = 'manga-card';
+    card.dataset.title = entry.title;
+    card.dataset.author = entry.author;
+    card.dataset.genre = entry.genre;
+    card.innerHTML = `<div class="cover ${escapeHtml(entry.cover || 'cover-witch')}"><span class="cover-kicker">MY JOURNAL</span><strong>${escapeHtml(entry.title)}</strong><span class="cover-volume">PERSONAL ENTRY</span></div><div class="manga-info"><div><h3>${escapeHtml(entry.title)}</h3><p>${escapeHtml(entry.author)} · ${escapeHtml(entry.genre)}</p></div><span class="score">${entry.ratings.length ? (entry.ratings.reduce((sum, rating) => sum + rating.score, 0) / entry.ratings.length).toFixed(1) : '—'} <b>★</b></span></div><p class="manga-note">“${escapeHtml(entry.notes.split(/\s+/).slice(0, 18).join(' '))}...”</p><div class="card-meta"><span>${entry.tags.length} tags · personal notes</span><button class="save-button" aria-label="Save ${escapeHtml(entry.title)}">♡</button></div>`;
+    grid.prepend(card);
+    card.querySelector('.save-button').addEventListener('click', (event) => {
+      const button = event.currentTarget;
+      const saved = button.classList.toggle('saved');
+      button.textContent = saved ? '♥' : '♡';
+    });
   });
-});
-
-postForm.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const formData = new FormData(postForm);
-  const title = formData.get('title');
-  const author = formData.get('author');
-  const genre = formData.get('genre');
-  const note = formData.get('note');
-  const newCard = document.createElement('article');
-  newCard.className = 'manga-card';
-  newCard.dataset.title = title;
-  newCard.dataset.author = author;
-  newCard.dataset.genre = genre;
-  newCard.innerHTML = `<div class="cover cover-witch"><span class="cover-kicker">NEW ENTRY</span><strong>${title}</strong><span class="cover-volume">FROM MY JOURNAL</span></div><div class="manga-info"><div><h3>${title}</h3><p>${author} · ${genre}</p></div><span class="score">5.0 <b>★</b></span></div><p class="manga-note">“${note}”</p><div class="card-meta"><span>My notes · 3 min read</span><button class="save-button" aria-label="Save ${title}">♡</button></div>`;
-  document.querySelector('#mangaGrid').prepend(newCard);
   cards = [...document.querySelectorAll('.manga-card')];
-  newCard.querySelector('.save-button').addEventListener('click', (buttonEvent) => {
-    const button = buttonEvent.currentTarget;
-    const saved = button.classList.toggle('saved');
-    button.textContent = saved ? '♥' : '♡';
-  });
-  postForm.reset();
-  document.querySelectorAll('.rating-input button').forEach((button) => button.classList.remove('selected'));
-  postDialog.close();
-  newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-});
+}
+
+loadSavedEntries();
