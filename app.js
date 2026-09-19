@@ -22,7 +22,8 @@ function getRanking(title) {
 }
 
 function getVisitorAverage(title) {
-  const ratings = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}')[title] || [];
+  const stored = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}')[title];
+  const ratings = Array.isArray(stored) ? stored : (stored?.ratings || []);
   return ratings.length ? ratings.reduce((sum, score) => sum + score, 0) / ratings.length : null;
 }
 

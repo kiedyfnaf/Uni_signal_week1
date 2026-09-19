@@ -8,33 +8,55 @@ const sampleManga = [
   { title: 'Witch Hat Atelier', author: 'Kamome Shirahama', genre: 'Fantasy / Magic', createdAt: '2026-09-16', cover: 'cover-witch' },
 ];
 const allManga = [...sampleManga, ...JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]')];
-const genreSelect = document.querySelector('#filterGenre');
+const genreCheckboxes = document.querySelector('#genreCheckboxes');
 const categorySelect = document.querySelector('#filterCategory');
-genres.forEach((genre) => genreSelect.insertAdjacentHTML('beforeend', `<option>${genre}</option>`));
+genreCheckboxes.innerHTML = genres.map((genre) => `<label class="checkbox-option"><input type="checkbox" value="${genre}" />${genre}</label>`).join('');
 categories.forEach((category) => categorySelect.insertAdjacentHTML('beforeend', `<option>${category}</option>`));
-const controls = { search: document.querySelector('#filterSearch'), genre: genreSelect, category: categorySelect, score: document.querySelector('#filterScore'), visitorScore: document.querySelector('#filterVisitorScore'), date: document.querySelector('#filterDate'), sort: document.querySelector('#filterSort'), direction: document.querySelector('#filterDirection'), view: document.querySelector('#filterView') };
+const controls = { search: document.querySelector('#filterSearch'), category: categorySelect, score: document.querySelector('#filterScore'), visitorScore: document.querySelector('#filterVisitorScore'), date: document.querySelector('#filterDate'), sort: document.querySelector('#filterSort'), direction: document.querySelector('#filterDirection'), view: document.querySelector('#filterView') };
 const results = document.querySelector('#filterResults');
 const resultCount = document.querySelector('#resultCount');
 const filterSummary = document.querySelector('#filterSummary');
 function scoresFor(manga) { return manga.ratings?.length ? categories.map((category) => manga.ratings.find((rating) => rating.category === category)?.score ?? 0) : rankingScores[manga.title] || categories.map((_, index) => Number((7 + ((index * 7) % 29) / 10).toFixed(1))); }
 function averageFor(manga) { return scoresFor(manga).reduce((sum, score) => sum + score, 0) / categories.length; }
-function visitorAverageFor(manga) { const ratings = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}')[manga.title] || []; return ratings.length ? ratings.reduce((sum, score) => sum + score, 0) / ratings.length : null; }
+function visitorAverageFor(manga) { const ratings = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}')[manga.title]?.ratings || []; return ratings.length ? ratings.reduce((sum, score) => sum + score, 0) / ratings.length : null; }
 function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])); }
 function render() {
   const query = controls.search.value.trim().toLowerCase();
-  const selectedGenre = controls.genre.value.toLowerCase();
+  const selectedGenres = [...genreCheckboxes.querySelectorAll('input:checked')].map((input) => input.value.toLowerCase());
   const category = controls.category.value;
   const categoryIndex = categories.indexOf(category);
   const minimum = Number(controls.score.value);
+  const visitorMinimum = Number(controls.visitorScore.value);
   const age = controls.date.value === 'all' ? Infinity : Number(controls.date.value);
   const cutoff = age === Infinity ? -Infinity : Date.now() - age * 86400000;
-  const visitorMinimum = Number(controls.visitorScore.value);
-  const matches = allManga.filter((manga) => { const scores = scoresFor(manga); const created = new Date(manga.createdAt || '2026-09-01').getTime(); const selectedScore = category === 'all' ? averageFor(manga) : scores[categoryIndex]; const visitorAverage = visitorAverageFor(manga); return `${manga.title} ${manga.author}`.toLowerCase().includes(query) && (selectedGenre === 'all' || manga.genre.toLowerCase().includes(selectedGenre)) && selectedScore >= minimum && (visitorMinimum === 0 || (visitorAverage !== null && visitorAverage >= visitorMinimum)) && created >= cutoff; }).sort((a, b) => { const direction = controls.direction.value === 'asc' ? 1 : -1; if (controls.sort.value === 'title') return direction * a.title.localeCompare(b.title); if (controls.sort.value === 'date') return direction * (new Date(a.createdAt || 0) - new Date(b.createdAt || 0)); if (controls.sort.value === 'visitor') return direction * ((visitorAverageFor(a) || 0) - (visitorAverageFor(b) || 0)); const aScore = category === 'all' ? averageFor(a) : scoresFor(a)[categoryIndex]; const bScore = category === 'all' ? averageFor(b) : scoresFor(b)[categoryIndex]; return direction * (aScore - bScore); });
+  const matches = allManga.filter((manga) => {
+    const scores = scoresFor(manga);
+    const created = new Date(manga.createdAt || '2026-09-01').getTime();
+    const personalScore = category === 'all' ? averageFor(manga) : scores[categoryIndex];
+    const visitorScore = visitorAverageFor(manga);
+    const mangaGenres = manga.genre.toLowerCase();
+    const genreMatch = !selectedGenres.length || selectedGenres.some((genre) => mangaGenres.includes(genre));
+    return `${manga.title} ${manga.author}`.toLowerCase().includes(query) && genreMatch && personalScore >= minimum && (visitorMinimum === 0 || (visitorScore !== null && visitorScore >= visitorMinimum)) && created >= cutoff;
+  }).sort((a, b) => {
+    const direction = controls.direction.value === 'asc' ? 1 : -1;
+    if (controls.sort.value === 'title') return direction * a.title.localeCompare(b.title);
+    if (controls.sort.value === 'date') return direction * (new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+    if (controls.sort.value === 'visitor') return direction * ((visitorAverageFor(a) || 0) - (visitorAverageFor(b) || 0));
+    const aScore = category === 'all' ? averageFor(a) : scoresFor(a)[categoryIndex];
+    const bScore = category === 'all' ? averageFor(b) : scoresFor(b)[categoryIndex];
+    return direction * (aScore - bScore);
+  });
   resultCount.textContent = `${matches.length} result${matches.length === 1 ? '' : 's'}`;
-  filterSummary.textContent = category === 'all' ? 'Sorted by overall average' : `Sorted by ${category}`;
+  filterSummary.textContent = selectedGenres.length ? `Genres: ${selectedGenres.join(', ')}` : 'Showing all genres';
   results.classList.toggle('list-view', controls.view.value === 'list');
-  results.innerHTML = matches.map((manga) => { const score = category === 'all' ? averageFor(manga) : scoresFor(manga)[categoryIndex]; const visitorAverage = visitorAverageFor(manga); const image = manga.coverImage ? `<img src="${manga.coverImage}" alt="${escapeHtml(manga.title)} cover" />` : '<span>M</span>'; return `<a class="filter-result" href="manga-view.html?title=${encodeURIComponent(manga.title)}"><div class="filter-result-cover ${escapeHtml(manga.cover || '')}">${image}</div><div><strong>${escapeHtml(manga.title)}</strong><p>${escapeHtml(manga.author)} · ${escapeHtml(manga.genre)}</p><small>Added ${new Date(manga.createdAt || '2026-09-01').toLocaleDateString()} · Visitors ${visitorAverage === null ? '—' : visitorAverage.toFixed(1)} / 10</small></div><b>${score.toFixed(1)} <small>/ 10</small></b></a>`; }).join('') || '<p class="empty-state visible">No manga matches those filters.</p>';
+  results.innerHTML = matches.map((manga) => {
+    const score = category === 'all' ? averageFor(manga) : scoresFor(manga)[categoryIndex];
+    const visitorScore = visitorAverageFor(manga);
+    const image = manga.coverImage ? `<img src="${manga.coverImage}" alt="${escapeHtml(manga.title)} cover" />` : '<span>M</span>';
+    return `<a class="filter-result" href="manga-view.html?title=${encodeURIComponent(manga.title)}"><div class="filter-result-cover ${escapeHtml(manga.cover || '')}">${image}</div><div><strong>${escapeHtml(manga.title)}</strong><p>${escapeHtml(manga.author)} · ${escapeHtml(manga.genre)}</p><small>Added ${new Date(manga.createdAt || '2026-09-01').toLocaleDateString()} · Visitors ${visitorScore === null ? '—' : visitorScore.toFixed(1)} / 10</small></div><b>${score.toFixed(1)} <small>/ 10</small></b></a>`;
+  }).join('') || '<p class="empty-state visible">No manga matches those filters.</p>';
 }
+genreCheckboxes.addEventListener('change', render);
 Object.values(controls).forEach((control) => control.addEventListener('input', render));
-document.querySelector('#clearFilters').addEventListener('click', () => { Object.assign(controls.search, { value: '' }); controls.genre.value = 'all'; controls.category.value = 'all'; controls.score.value = '0'; controls.visitorScore.value = '0'; controls.date.value = 'all'; controls.sort.value = 'score'; controls.direction.value = 'desc'; controls.view.value = 'grid'; render(); });
+document.querySelector('#clearFilters').addEventListener('click', () => { controls.search.value = ''; genreCheckboxes.querySelectorAll('input').forEach((input) => { input.checked = false; }); controls.category.value = 'all'; controls.score.value = '0'; controls.visitorScore.value = '0'; controls.date.value = 'all'; controls.sort.value = 'score'; controls.direction.value = 'desc'; controls.view.value = 'grid'; render(); });
 render();
