@@ -21,6 +21,17 @@ function getRanking(title) {
   return rankingCategories.map((category, index) => ({ category, score: scores[index] }));
 }
 
+function getVisitorAverage(title) {
+  const ratings = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}')[title] || [];
+  return ratings.length ? ratings.reduce((sum, score) => sum + score, 0) / ratings.length : null;
+}
+
+function getPersonalAverage(title) {
+  const savedEntry = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]').find((entry) => entry.title === title);
+  const ratings = savedEntry?.ratings?.length ? savedEntry.ratings.map((rating) => rating.score) : getRanking(title).map((rating) => rating.score);
+  return ratings.reduce((sum, score) => sum + score, 0) / ratings.length;
+}
+
 function filterManga() {
   const query = searchInput.value.trim().toLowerCase();
   let visibleCards = 0;
@@ -65,8 +76,10 @@ function loadSavedEntries() {
     card.dataset.genre = entry.genre;
       card.dataset.entryId = entry.id;
     const coverMarkup = entry.coverImage ? `<img class="card-cover-image" src="${entry.coverImage}" alt="${escapeHtml(entry.title)} cover" />` : `<div class="cover ${escapeHtml(entry.cover || 'cover-witch')}"><span class="cover-kicker">MY JOURNAL</span><strong>${escapeHtml(entry.title)}</strong><span class="cover-volume">PERSONAL ENTRY</span></div>`;
-    const average = getRanking(entry.title).reduce((sum, rating) => sum + rating.score, 0) / rankingCategories.length;
-    card.innerHTML = `${coverMarkup}<div class="manga-info"><div><h3>${escapeHtml(entry.title)}</h3><p>${escapeHtml(entry.author)} · ${escapeHtml(entry.genre)}</p></div><span class="score">${average.toFixed(1)} <b>★</b></span></div><p class="manga-note">“${escapeHtml(entry.notes.split(/\s+/).slice(0, 18).join(' '))}...”</p><div class="card-meta"><span>${entry.tags.length} tags · personal notes</span><button class="save-button" aria-label="Save ${escapeHtml(entry.title)}">♡</button></div>`;
+      const average = getPersonalAverage(entry.title);
+    const visitorAverage = getVisitorAverage(entry.title);
+      const combined = visitorAverage === null ? average : (average + visitorAverage) / 2;
+      card.innerHTML = `${coverMarkup}<div class="manga-info"><div><h3>${escapeHtml(entry.title)}</h3><p>${escapeHtml(entry.author)} · ${escapeHtml(entry.genre)}</p><div class="score-pair"><span class="score">${average.toFixed(1)} <b>★</b><small>My score</small></span><span class="score visitor-score">${visitorAverage === null ? '—' : visitorAverage.toFixed(1)} <b>★</b><small>Visitors</small></span><span class="score combined-score">${combined.toFixed(1)} <b>★</b><small>Combined</small></span></div></div></div><p class="manga-note">“${escapeHtml(entry.notes.split(/\s+/).slice(0, 18).join(' '))}...”</p><div class="card-meta"><span>${entry.tags.length} tags · personal notes</span><button class="save-button" aria-label="Save ${escapeHtml(entry.title)}">♡</button></div>`;
     grid.prepend(card);
     card.querySelector('.save-button').addEventListener('click', (event) => {
       const button = event.currentTarget;
@@ -82,6 +95,24 @@ function loadSavedEntries() {
     if (storedEntries[0]?.title) document.querySelector('#lastAddedManga').textContent = storedEntries[0].title;
   cards = [...document.querySelectorAll('.manga-card')];
 }
+
+loadSavedEntries();
+
+function decorateCardScores() {
+  cards.forEach((card) => {
+    const score = card.querySelector('.score');
+    if (!score || score.parentElement.classList.contains('score-pair')) return;
+    const personal = getPersonalAverage(card.dataset.title);
+    const visitor = getVisitorAverage(card.dataset.title);
+    const pair = document.createElement('div');
+    pair.className = 'score-pair';
+    const combined = visitor === null ? personal : (personal + visitor) / 2;
+    pair.innerHTML = `<span class="score">${personal.toFixed(1)} <b>★</b><small>My score</small></span><span class="score visitor-score">${visitor === null ? '—' : visitor.toFixed(1)} <b>★</b><small>Visitors</small></span><span class="score combined-score">${combined.toFixed(1)} <b>★</b><small>Combined</small></span>`;
+    score.replaceWith(pair);
+  });
+}
+
+decorateCardScores();
 
 document.querySelectorAll('.manga-card').forEach((card) => {
   card.addEventListener('click', (event) => {
