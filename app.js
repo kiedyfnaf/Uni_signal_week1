@@ -74,6 +74,12 @@ function loadSavedEntries() {
       button.textContent = saved ? '♥' : '♡';
     });
   });
+    const storedEntries = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
+    const storedDrafts = JSON.parse(localStorage.getItem('mangaJournalDrafts') || '[]');
+    document.querySelector('#addedMangaCount').textContent = 4 + storedEntries.length;
+    document.querySelector('#listMangaCount').textContent = 4 + storedEntries.length;
+    document.querySelector('#draftCount').textContent = storedDrafts.length;
+    if (storedEntries[0]?.title) document.querySelector('#lastAddedManga').textContent = storedEntries[0].title;
   cards = [...document.querySelectorAll('.manga-card')];
 }
 

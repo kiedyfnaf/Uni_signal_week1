@@ -19,16 +19,18 @@
         </a>
         <p class="eyebrow">Lucia's manga journal</p>
         <nav class="primary-nav" aria-label="Primary navigation">
-          <a class="nav-item active" href="#explore"><span class="nav-symbol">◈</span> My journal <span class="nav-count">12</span></a>
-          <a class="nav-item" href="#saved"><span class="nav-symbol">♡</span> Saved</a>
-          <a class="nav-item" href="#activity"><span class="nav-symbol">◷</span> Reading notes</a>
+          <a class="nav-item active" href="#top"><span class="nav-symbol">⌂</span> Home</a>
+          <a class="nav-item" href="#filters"><span class="nav-symbol">⌘</span> Filters</a>
+          <a class="nav-item" href="#rankings"><span class="nav-symbol">↗</span> Rankings</a>
+          <a class="nav-item" href="history.html"><span class="nav-symbol">◷</span> History</a>
+          <a class="nav-item" href="drafts.html"><span class="nav-symbol">◇</span> Drafts <span class="nav-count" id="draftCount">0</span></a>
         </nav>
         <div class="sidebar-divider"></div>
         <p class="eyebrow">My lists</p>
         <nav class="list-nav" aria-label="My lists">
-          <a href="#reading"><span class="list-dot coral"></span>Reading <small>8</small></a>
-          <a href="#backlog"><span class="list-dot mint"></span>Backlog <small>21</small></a>
-          <a href="#finished"><span class="list-dot lilac"></span>Finished <small>34</small></a>
+          <a href="#saved"><span class="list-dot coral"></span>All manga <small id="listMangaCount">0</small></a>
+          <a href="#rankings"><span class="list-dot mint"></span>Top rated <small>20</small></a>
+          <a href="manga-editor.html"><span class="list-dot lilac"></span>Add manga <small>＋</small></a>
         </nav>
         <div class="sidebar-footer">
           <div class="profile-mini"><span class="avatar">LV</span><span><strong>Lucia Vega</strong><small>@lucia.vee</small></span><button class="icon-button" aria-label="More options">•••</button></div>
@@ -47,10 +49,11 @@
           <a class="button button-dark" href="manga-editor.html"><span>✎</span> Add manga</a>
         </section>
 
-        <section class="stats-grid" aria-label="Journal summary">
-          <article class="stat-card stat-pink"><span>MY COLLECTION</span><strong>63</strong><small>saved manga</small><b>↗ 8% this month</b></article>
-          <article class="stat-card stat-yellow"><span>MY NOTES</span><strong>18</strong><small>journal entries</small><b>Updated this week</b></article>
-          <article class="stat-card stat-blue"><span>MY READING</span><strong>247</strong><small>chapters explored</small><b>+12 this week</b></article>
+        <section class="metric-strip" aria-label="Journal summary">
+          <div><span>ADDED MANGA</span><strong id="addedMangaCount">4</strong></div>
+          <div><span>LAST ADDED</span><strong id="lastAddedManga">Witch Hat Atelier</strong></div>
+          <div><span>RANKED CATEGORIES</span><strong>20</strong></div>
+          <a class="metric-history" href="history.html"><span>CHANGES &amp; PUBLISHES</span><strong>View history →</strong></a>
         </section>
 
         <section class="section-block" id="saved">
@@ -73,7 +76,7 @@
         </section>
 
         <section class="section-block ranking-section" id="rankings">
-          <div class="section-heading"><div><p class="eyebrow">My fixed framework</p><h2>Manga rankings</h2></div><span class="ranking-average" id="rankingAverage">Average 8.6 / 10</span></div>
+          <div class="section-heading" id="filters"><div><p class="eyebrow">My fixed framework</p><h2>Manga rankings</h2></div><span class="ranking-average" id="rankingAverage">Average 8.6 / 10</span></div>
           <div class="ranking-controls"><label>Filter by score<select id="scoreFilter"><option value="0">All scores</option><option value="9">9+ only</option><option value="8">8+ only</option><option value="7">7+ only</option></select></label><label>Filter by category<select id="categoryFilter"><option value="all">All categories</option></select></label></div>
           <div class="ranking-grid" id="rankingGrid"></div>
         </section>
