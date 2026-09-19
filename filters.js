@@ -18,6 +18,20 @@ const resultCount = document.querySelector('#resultCount');
 const filterSummary = document.querySelector('#filterSummary');
 const activeFilters = document.querySelector('#activeFilters');
 const genreSelectionCount = document.querySelector('#genreSelectionCount');
+const settingsDialog = document.querySelector('#settingsDialog');
+const themeSelect = document.querySelector('#themeSelect');
+
+function applyTheme(theme) {
+  document.body.dataset.theme = theme;
+  localStorage.setItem('mangaShelfTheme', theme);
+  themeSelect.value = theme;
+}
+
+document.querySelector('#openSettings').addEventListener('click', () => settingsDialog.showModal());
+document.querySelector('#closeSettings').addEventListener('click', () => settingsDialog.close());
+settingsDialog.addEventListener('click', (event) => { if (event.target === settingsDialog) settingsDialog.close(); });
+themeSelect.addEventListener('change', () => applyTheme(themeSelect.value));
+applyTheme(localStorage.getItem('mangaShelfTheme') || 'current');
 function scoresFor(manga) { return manga.ratings?.length ? categories.map((category) => manga.ratings.find((rating) => rating.category === category)?.score ?? 0) : rankingScores[manga.title] || categories.map((_, index) => Number((7 + ((index * 7) % 29) / 10).toFixed(1))); }
 function averageFor(manga) { return scoresFor(manga).reduce((sum, score) => sum + score, 0) / categories.length; }
 function visitorAverageFor(manga) { const ratings = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}')[manga.title]?.ratings || []; return ratings.length ? ratings.reduce((sum, score) => sum + score, 0) / ratings.length : null; }
