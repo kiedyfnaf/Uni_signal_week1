@@ -1,5 +1,5 @@
 const searchInput = document.querySelector('#searchInput');
-const cards = [...document.querySelectorAll('.manga-card')];
+let cards = [...document.querySelectorAll('.manga-card')];
 const emptyState = document.querySelector('#emptyState');
 const postDialog = document.querySelector('#postDialog');
 const postForm = document.querySelector('#postForm');
@@ -49,13 +49,15 @@ postForm.addEventListener('submit', (event) => {
   const title = formData.get('title');
   const author = formData.get('author');
   const genre = formData.get('genre');
+  const note = formData.get('note');
   const newCard = document.createElement('article');
   newCard.className = 'manga-card';
   newCard.dataset.title = title;
   newCard.dataset.author = author;
   newCard.dataset.genre = genre;
-  newCard.innerHTML = `<div class="cover cover-witch"><span class="cover-kicker">NEW</span><strong>${title}</strong><span class="cover-volume">FROM THE COMMUNITY</span></div><div class="manga-info"><div><h3>${title}</h3><p>${author} · ${genre}</p></div><span class="score">5.0 <b>★</b></span></div><div class="card-meta"><span>Your post</span><button class="save-button" aria-label="Save ${title}">♡</button></div>`;
+  newCard.innerHTML = `<div class="cover cover-witch"><span class="cover-kicker">NEW ENTRY</span><strong>${title}</strong><span class="cover-volume">FROM MY JOURNAL</span></div><div class="manga-info"><div><h3>${title}</h3><p>${author} · ${genre}</p></div><span class="score">5.0 <b>★</b></span></div><p class="manga-note">“${note}”</p><div class="card-meta"><span>My notes · 3 min read</span><button class="save-button" aria-label="Save ${title}">♡</button></div>`;
   document.querySelector('#mangaGrid').prepend(newCard);
+  cards = [...document.querySelectorAll('.manga-card')];
   newCard.querySelector('.save-button').addEventListener('click', (buttonEvent) => {
     const button = buttonEvent.currentTarget;
     const saved = button.classList.toggle('saved');

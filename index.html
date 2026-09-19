@@ -17,11 +17,11 @@
           <span class="brand-mark">M</span>
           <span>MangaShelf</span>
         </a>
-        <p class="eyebrow">Your social bookshelf</p>
+        <p class="eyebrow">Lucia's manga journal</p>
         <nav class="primary-nav" aria-label="Primary navigation">
-          <a class="nav-item active" href="#explore"><span class="nav-symbol">◈</span> Explore <span class="nav-count">12</span></a>
+          <a class="nav-item active" href="#explore"><span class="nav-symbol">◈</span> My journal <span class="nav-count">12</span></a>
           <a class="nav-item" href="#saved"><span class="nav-symbol">♡</span> Saved</a>
-          <a class="nav-item" href="#activity"><span class="nav-symbol">◷</span> Activity</a>
+          <a class="nav-item" href="#activity"><span class="nav-symbol">◷</span> Reading notes</a>
         </nav>
         <div class="sidebar-divider"></div>
         <p class="eyebrow">My lists</p>
@@ -39,47 +39,47 @@
         <header class="topbar">
           <div class="mobile-brand"><span class="brand-mark">M</span> MangaShelf</div>
           <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search title, author, or genre..." aria-label="Search manga" /><kbd>/</kbd></label>
-          <div class="top-actions"><button class="notification-button" aria-label="Ver notificaciones">♧<i></i></button><button class="avatar">LV</button></div>
+          <div class="top-actions"><span class="reader-label">Read-only view</span><button class="avatar">LV</button></div>
         </header>
 
         <section class="welcome-row" id="explore">
-          <div><p class="eyebrow">Thursday, September 19</p><h1>Good morning, Lucia<span>.</span></h1><p class="subheading">A good day to discover a new story.</p></div>
-          <button class="button button-dark" id="openPost"><span>＋</span> Post manga</button>
+          <div><p class="eyebrow">Thursday, September 19</p><h1>My manga journal<span>.</span></h1><p class="subheading">Personal notes on the stories I am reading and loving.</p></div>
+          <button class="button button-dark" id="openPost"><span>✎</span> Edit my journal</button>
         </section>
 
-        <section class="stats-grid" aria-label="Resumen de actividad">
+        <section class="stats-grid" aria-label="Journal summary">
           <article class="stat-card stat-pink"><span>MY COLLECTION</span><strong>63</strong><small>saved manga</small><b>↗ 8% this month</b></article>
-          <article class="stat-card stat-yellow"><span>MY ACTIVITY</span><strong>18</strong><small>published reviews</small><b>Your streak: 6 days</b></article>
-          <article class="stat-card stat-blue"><span>COMMUNITY</span><strong>247</strong><small>people follow you</small><b>+12 this week</b></article>
+          <article class="stat-card stat-yellow"><span>MY NOTES</span><strong>18</strong><small>journal entries</small><b>Updated this week</b></article>
+          <article class="stat-card stat-blue"><span>MY READING</span><strong>247</strong><small>chapters explored</small><b>+12 this week</b></article>
         </section>
 
         <section class="section-block" id="saved">
-          <div class="section-heading"><div><p class="eyebrow">Community picks</p><h2>What’s trending</h2></div><a href="#all" class="text-link">View all <span>→</span></a></div>
+          <div class="section-heading"><div><p class="eyebrow">From my bookshelf</p><h2>Stories I’m reading</h2></div><a href="#all" class="text-link">View all <span>→</span></a></div>
           <div class="manga-grid" id="mangaGrid">
             <article class="manga-card" data-title="Dandadan" data-author="Yukinobu Tatsu" data-genre="Action / Supernatural">
-              <div class="cover cover-dandadan"><span class="cover-kicker">集英社</span><strong>DANDADAN</strong><span class="cover-volume">VOL. 04</span></div><div class="manga-info"><div><h3>Dandadan</h3><p>Yukinobu Tatsu · Action / Supernatural</p></div><span class="score">4.8 <b>★</b></span></div><div class="card-meta"><span>1.2k reviews</span><button class="save-button" aria-label="Save Dandadan">♡</button></div>
+              <div class="cover cover-dandadan"><span class="cover-kicker">集英社</span><strong>DANDADAN</strong><span class="cover-volume">VOL. 04</span></div><div class="manga-info"><div><h3>Dandadan</h3><p>Yukinobu Tatsu · Action / Supernatural</p></div><span class="score">4.8 <b>★</b></span></div><p class="manga-note">“Chaotic, funny, and impossible to put down.”</p><div class="card-meta"><span>My notes · 4 min read</span><button class="save-button" aria-label="Save Dandadan">♡</button></div>
             </article>
             <article class="manga-card" data-title="Blue Period" data-author="Tsubasa Yamaguchi" data-genre="Drama / Arte">
-              <div class="cover cover-blue"><span class="cover-kicker">講談社</span><strong>BLUE<br />PERIOD</strong><span class="cover-volume">VOL. 08</span></div><div class="manga-info"><div><h3>Blue Period</h3><p>Tsubasa Yamaguchi · Drama / Art</p></div><span class="score">4.7 <b>★</b></span></div><div class="card-meta"><span>864 reviews</span><button class="save-button" aria-label="Save Blue Period">♡</button></div>
+              <div class="cover cover-blue"><span class="cover-kicker">講談社</span><strong>BLUE<br />PERIOD</strong><span class="cover-volume">VOL. 08</span></div><div class="manga-info"><div><h3>Blue Period</h3><p>Tsubasa Yamaguchi · Drama / Art</p></div><span class="score">4.7 <b>★</b></span></div><p class="manga-note">“A quiet story about finding a language for feeling.”</p><div class="card-meta"><span>My notes · 6 min read</span><button class="save-button" aria-label="Save Blue Period">♡</button></div>
             </article>
             <article class="manga-card" data-title="Frieren" data-author="Kanehito Yamada" data-genre="Fantasy / Adventure">
-              <div class="cover cover-frieren"><span class="cover-kicker">小学館</span><strong>葬送の<br />フリーレン</strong><span class="cover-volume">VOL. 06</span></div><div class="manga-info"><div><h3>Frieren</h3><p>Kanehito Yamada · Fantasy / Adventure</p></div><span class="score">4.9 <b>★</b></span></div><div class="card-meta"><span>2.4k reviews</span><button class="save-button" aria-label="Save Frieren">♡</button></div>
+              <div class="cover cover-frieren"><span class="cover-kicker">小学館</span><strong>葬送の<br />フリーレン</strong><span class="cover-volume">VOL. 06</span></div><div class="manga-info"><div><h3>Frieren</h3><p>Kanehito Yamada · Fantasy / Adventure</p></div><span class="score">4.9 <b>★</b></span></div><p class="manga-note">“A tender reminder that time gives small moments their weight.”</p><div class="card-meta"><span>My notes · 5 min read</span><button class="save-button" aria-label="Save Frieren">♡</button></div>
             </article>
             <article class="manga-card" data-title="Witch Hat Atelier" data-author="Kamome Shirahama" data-genre="Fantasy / Magic">
-              <div class="cover cover-witch"><span class="cover-kicker">講談社</span><strong>WITCH HAT<br />ATELIER</strong><span class="cover-volume">VOL. 12</span></div><div class="manga-info"><div><h3>Witch Hat Atelier</h3><p>Kamome Shirahama · Fantasy / Magic</p></div><span class="score">4.9 <b>★</b></span></div><div class="card-meta"><span>936 reviews</span><button class="save-button" aria-label="Save Witch Hat Atelier">♡</button></div>
+              <div class="cover cover-witch"><span class="cover-kicker">講談社</span><strong>WITCH HAT<br />ATELIER</strong><span class="cover-volume">VOL. 12</span></div><div class="manga-info"><div><h3>Witch Hat Atelier</h3><p>Kamome Shirahama · Fantasy / Magic</p></div><span class="score">4.9 <b>★</b></span></div><p class="manga-note">“Every page feels like opening a secret door into another world.”</p><div class="card-meta"><span>My notes · 7 min read</span><button class="save-button" aria-label="Save Witch Hat Atelier">♡</button></div>
             </article>
           </div>
           <p class="empty-state" id="emptyState">No manga found for that search.</p>
         </section>
 
-        <section class="lower-grid" id="actividad">
-          <article class="activity-panel"><div class="section-heading"><div><p class="eyebrow">On your radar</p><h2>Recent activity</h2></div><a href="#activity" class="text-link">History <span>→</span></a></div><div class="activity-item"><span class="activity-avatar">AM</span><p><strong>Alex M.</strong> rated <b>Solanin</b><small>12 min ago · <em>5.0 ★</em></small></p><span class="activity-cover">SOL</span></div><div class="activity-item"><span class="activity-avatar peach">JN</span><p><strong>Julia N.</strong> posted a review of <b>Look Back</b><small>43 min ago · “A short and beautiful story”</small></p><span class="activity-cover look">LB</span></div><div class="activity-item"><span class="activity-avatar green">TK</span><p><strong>Tom K.</strong> started reading <b>Pluto</b><small>1 hr ago · 8 chapters</small></p><span class="activity-cover pluto">P</span></div></article>
-          <article class="quote-panel"><span class="quote-mark">“</span><p>The stories we remember most are the ones that find us at just the right moment.</p><div class="quote-line"></div><small>Your shelf, your stories</small></article>
+        <section class="lower-grid" id="activity">
+          <article class="activity-panel"><div class="section-heading"><div><p class="eyebrow">Journal archive</p><h2>Recent notes</h2></div><a href="#activity" class="text-link">Browse archive <span>→</span></a></div><div class="activity-item"><span class="activity-avatar">LV</span><p><strong>My note</strong> on <b>Solanin</b><small>Updated 12 min ago · <em>5.0 ★</em></small></p><span class="activity-cover">SOL</span></div><div class="activity-item"><span class="activity-avatar peach">LV</span><p><strong>My note</strong> on <b>Look Back</b><small>Updated yesterday · “A short and beautiful story”</small></p><span class="activity-cover look">LB</span></div><div class="activity-item"><span class="activity-avatar green">LV</span><p><strong>Reading log</strong> for <b>Pluto</b><small>Updated 2 days ago · 8 chapters</small></p><span class="activity-cover pluto">P</span></div></article>
+          <article class="quote-panel"><span class="quote-mark">“</span><p>The stories I remember most are the ones that find me at just the right moment.</p><div class="quote-line"></div><small>A private journal, open to readers</small></article>
         </section>
       </main>
     </div>
 
-    <dialog id="postDialog" class="post-dialog"><button class="close-dialog" id="closePost" aria-label="Close">×</button><p class="eyebrow">Add to the community</p><h2>Share a manga.</h2><p class="dialog-copy">Tell the community which story deserves a place on your shelf.</p><form id="postForm"><label>Title<input name="title" required placeholder="E.g. Nausicaä of the Valley of the Wind" /></label><label>Author<input name="author" required placeholder="E.g. Hayao Miyazaki" /></label><label>Genre<input name="genre" required placeholder="E.g. Adventure / Fantasy" /></label><label>Your rating <span class="rating-input" aria-label="5-star rating"><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button></span></label><button class="button button-dark submit-button" type="submit">Post to MangaShelf <span>→</span></button></form></dialog>
+    <dialog id="postDialog" class="post-dialog"><button class="close-dialog" id="closePost" aria-label="Close">×</button><p class="eyebrow">Owner editor</p><h2>Edit a journal entry.</h2><p class="dialog-copy">This is the private writing space for Lucia’s manga journal. Visitors can read entries but cannot edit them.</p><form id="postForm"><label>Title<input name="title" required placeholder="E.g. Nausicaä of the Valley of the Wind" /></label><label>Author<input name="author" required placeholder="E.g. Hayao Miyazaki" /></label><label>Genre<input name="genre" required placeholder="E.g. Adventure / Fantasy" /></label><label>My note<textarea name="note" rows="3" required placeholder="What stayed with you?"></textarea></label><label>My rating <span class="rating-input" aria-label="5-star rating"><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button></span></label><button class="button button-dark submit-button" type="submit">Save journal entry <span>→</span></button></form></dialog>
     <script src="app.js"></script>
   </body>
 </html>
