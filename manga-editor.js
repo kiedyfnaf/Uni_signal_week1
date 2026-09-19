@@ -7,6 +7,12 @@ const tagsValue = document.querySelector('#tagsValue');
 const ratingList = document.querySelector('#ratingList');
 const ratingTotal = document.querySelector('#ratingTotal');
 const saveStatus = document.querySelector('#saveStatus');
+const coverImage = document.querySelector('#coverImage');
+const panelImages = document.querySelector('#panelImages');
+const coverPreview = document.querySelector('#coverPreview');
+const panelPreview = document.querySelector('#panelPreview');
+let coverImageData = '';
+let panelImageData = [];
 
 const defaultRatings = ['Story', 'Characters', 'Art', 'World-building', 'Emotional impact'];
 
@@ -60,6 +66,26 @@ function addRatingRow(name = '') {
   ratingList.append(row);
 }
 
+function readImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => resolve(reader.result));
+    reader.addEventListener('error', reject);
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderImagePreviews() {
+  coverPreview.innerHTML = coverImageData ? `<img src="${coverImageData}" alt="Selected front cover preview" />` : '';
+  panelPreview.innerHTML = panelImageData.map((image, index) => `<div class="panel-thumb"><img src="${image}" alt="Selected manga panel ${index + 1}" /><button type="button" data-panel-index="${index}" aria-label="Remove panel ${index + 1}">×</button></div>`).join('');
+  panelPreview.querySelectorAll('button').forEach((button) => {
+    button.addEventListener('click', () => {
+      panelImageData.splice(Number(button.dataset.panelIndex), 1);
+      renderImagePreviews();
+    });
+  });
+}
+
 defaultRatings.forEach((rating) => addRatingRow(rating));
 notes.addEventListener('input', updateWordCount);
 tagInput.addEventListener('keydown', (event) => {
@@ -70,6 +96,16 @@ tagInput.addEventListener('keydown', (event) => {
   }
 });
 document.querySelector('#addRating').addEventListener('click', () => addRatingRow());
+coverImage.addEventListener('change', async () => {
+  coverImageData = coverImage.files[0] ? await readImage(coverImage.files[0]) : '';
+  renderImagePreviews();
+});
+panelImages.addEventListener('change', async () => {
+  const selectedImages = await Promise.all([...panelImages.files].map(readImage));
+  panelImageData = [...panelImageData, ...selectedImages];
+  renderImagePreviews();
+  panelImages.value = '';
+});
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -86,6 +122,8 @@ form.addEventListener('submit', (event) => {
     cover: data.get('cover'),
     tags: JSON.parse(tagsValue.value || '[]'),
     notes: data.get('notes'),
+    coverImage: coverImageData,
+    panelImages: panelImageData,
     ratings,
     createdAt: new Date().toISOString(),
   };

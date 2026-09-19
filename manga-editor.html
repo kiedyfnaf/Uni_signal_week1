@@ -44,6 +44,14 @@
             <textarea id="notes" name="notes" required placeholder="Start writing your thoughts about this manga...&#10;&#10;There is no small limit here. Add a scene-by-scene reading log, character notes, themes, favorite panels, reread thoughts, spoilers, or anything else you want to remember."></textarea>
             <p class="field-hint">No word limit. Your browser will keep this draft locally until you save it.</p>
           </div>
+
+          <div class="editor-panel image-panel">
+            <div class="panel-heading"><div><p class="eyebrow">Visual archive</p><h2>Images from this manga</h2></div><span class="field-hint">Stored in this browser</span></div>
+            <label>Front cover image <span class="field-hint">One image</span><input id="coverImage" type="file" accept="image/*" /></label>
+            <div id="coverPreview" class="cover-preview"></div>
+            <label>Panel gallery <span class="field-hint">Select multiple images</span><input id="panelImages" type="file" accept="image/*" multiple /></label>
+            <div id="panelPreview" class="panel-preview" aria-live="polite"></div>
+          </div>
         </section>
 
         <aside class="editor-sidebar">
