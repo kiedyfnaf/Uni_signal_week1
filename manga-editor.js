@@ -11,6 +11,8 @@ const coverPreview = document.querySelector('#coverPreview');
 const panelPreview = document.querySelector('#panelPreview');
 let coverImageData = '';
 let panelImageData = [];
+const rankingCategories = ['Visual style', 'Main cast', 'Supporting cast', 'Character depth', 'Character chemistry', 'Plot', 'Pacing', 'World-building', 'Dialogue', 'Humor', 'Drama', 'Emotional impact', 'Themes', 'Originality', 'Panel composition', 'Action', 'Romance', 'Atmosphere', 'Ending', 'Reread value'];
+const draftId = new URLSearchParams(window.location.search).get('draft');
 
 
 function updateWordCount() {
@@ -59,7 +61,45 @@ function renderImagePreviews() {
   });
 }
 
+function addRatingRows() {
+  const ratingList = document.querySelector('#ratingList');
+  rankingCategories.forEach((category) => {
+    const row = document.createElement('label');
+    row.className = 'rating-row';
+    row.innerHTML = `<span>${category}</span><input class="rating-number" data-category="${category}" type="number" min="0" max="10" step="0.1" value="0" aria-label="${category} score" /><small>/ 10</small>`;
+    row.querySelector('input').addEventListener('input', updateRatingTotal);
+    ratingList.append(row);
+  });
+}
+
+function updateRatingTotal() {
+  const values = [...document.querySelectorAll('.rating-number')].map((input) => Number(input.value));
+  const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+  document.querySelector('#ratingTotal').textContent = `${average.toFixed(1)} / 10`;
+}
+
+function restoreDraft() {
+  if (!draftId) return;
+  const draft = JSON.parse(localStorage.getItem('mangaJournalDrafts') || '[]').find((item) => item.id === draftId);
+  if (!draft) return;
+  form.elements.title.value = draft.title || '';
+  form.elements.author.value = draft.author || '';
+  form.elements.genre.value = draft.genre || '';
+  form.elements.cover.value = draft.cover || 'cover-witch';
+  notes.value = draft.notes || '';
+  (draft.tags || []).forEach(addTag);
+  coverImageData = draft.coverImage || '';
+  panelImageData = draft.panelImages || [];
+  renderImagePreviews();
+  (draft.ratings || []).forEach((rating) => {
+    const input = document.querySelector(`.rating-number[data-category="${CSS.escape(rating.category)}"]`);
+    if (input) input.value = rating.score;
+  });
+}
+
 notes.addEventListener('input', updateWordCount);
+addRatingRows();
+restoreDraft();
 tagInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter' || event.key === ',') {
     event.preventDefault();
@@ -81,8 +121,10 @@ panelImages.addEventListener('change', async () => {
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   const data = new FormData(form);
+  const saveMode = event.submitter?.value || 'entry';
+  const ratings = [...document.querySelectorAll('.rating-number')].map((input) => ({ category: input.dataset.category, score: Number(input.value) }));
   const entry = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+    id: draftId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
     title: data.get('title').trim(),
     author: data.get('author').trim(),
     genre: data.get('genre').trim(),
@@ -91,13 +133,22 @@ form.addEventListener('submit', (event) => {
     notes: data.get('notes'),
     coverImage: coverImageData,
     panelImages: panelImageData,
+    ratings,
     createdAt: new Date().toISOString(),
   };
-  const entries = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
-  entries.unshift(entry);
-  localStorage.setItem('mangaJournalEntries', JSON.stringify(entries));
-  saveStatus.textContent = 'Saved locally. Returning to your journal...';
-  window.setTimeout(() => { window.location.href = 'index.html'; }, 500);
+  const storageKey = saveMode === 'draft' ? 'mangaJournalDrafts' : 'mangaJournalEntries';
+  const savedItems = JSON.parse(localStorage.getItem(storageKey) || '[]');
+  const existingIndex = savedItems.findIndex((item) => item.id === entry.id);
+  if (existingIndex >= 0) savedItems[existingIndex] = entry;
+  else savedItems.unshift(entry);
+  localStorage.setItem(storageKey, JSON.stringify(savedItems));
+  if (saveMode === 'entry' && draftId) {
+    const remainingDrafts = JSON.parse(localStorage.getItem('mangaJournalDrafts') || '[]').filter((item) => item.id !== draftId);
+    localStorage.setItem('mangaJournalDrafts', JSON.stringify(remainingDrafts));
+  }
+  saveStatus.textContent = saveMode === 'draft' ? 'Draft saved. Opening drafts...' : 'Entry saved. Returning to your journal...';
+  window.setTimeout(() => { window.location.href = saveMode === 'draft' ? 'drafts.html' : 'index.html'; }, 500);
 });
 
 updateWordCount();
+updateRatingTotal();
