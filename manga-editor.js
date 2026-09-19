@@ -87,6 +87,7 @@ function restoreDraft() {
   form.elements.author.value = draft.author || '';
   [...genreSelect.options].forEach((option) => { option.selected = (draft.genre || '').split(' / ').includes(option.value); });
   form.elements.cover.value = draft.cover || 'cover-witch';
+  form.elements.chapter.value = draft.chapter || '';
   form.elements.linkUrl.value = draft.linkUrl || '';
   form.elements.linkDescription.value = draft.linkDescription || '';
   notes.value = draft.notes || '';
@@ -134,6 +135,7 @@ form.addEventListener('submit', (event) => {
     linkUrl: data.get('linkUrl').trim(),
     linkDescription: data.get('linkDescription').trim(),
     cover: data.get('cover'),
+    chapter: data.get('chapter').trim(),
     tags: JSON.parse(tagsValue.value || '[]'),
     notes: data.get('notes'),
     coverImage: coverImageData,

@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="site.css" />
+    <link rel="stylesheet" href="editor-tweaks.css" />
   </head>
   <body class="editor-page">
     <aside class="site-rail"><a class="brand" href="index.html"><span class="brand-mark">M</span><span>MangaShelf</span></a><p class="eyebrow">Lucia's manga journal</p><nav class="primary-nav"><a class="nav-item" href="index.html">⌂ Home</a><a class="nav-item" href="filters.html">⌘ Filters</a><a class="nav-item" href="index.html#rankings">↗ Rankings</a><a class="nav-item" href="history.html">◷ History</a><a class="nav-item" href="drafts.html">◇ Drafts</a></nav></aside>
@@ -34,8 +35,9 @@
               <label>Title<input name="title" required placeholder="e.g. Nausicaä of the Valley of the Wind" /></label>
               <label>Author<input name="author" required placeholder="e.g. Hayao Miyazaki" /></label>
               <label>Genres <span class="field-hint">Choose one or more</span><select name="genres" id="genreSelect" multiple size="5"><option>Action</option><option>Adventure</option><option>Comedy</option><option>Drama</option><option>Fantasy</option><option>Horror</option><option>Mystery</option><option>Romance</option><option>Science fiction</option><option>Slice of life</option><option>Sports</option><option>Supernatural</option></select></label>
-              <label>Cover color<select name="cover"><option value="cover-witch">Terracotta</option><option value="cover-dandadan">Coral</option><option value="cover-blue">Ocean blue</option><option value="cover-frieren">Forest green</option></select></label>
+              <label>Cover color<select class="cover-color-select" name="cover"><option value="cover-witch">Terracotta</option><option value="cover-dandadan">Coral</option><option value="cover-blue">Ocean blue</option><option value="cover-frieren">Forest green</option></select></label>
             </div>
+            <label>Review written at <span class="field-hint">Chapter or volume</span><input name="chapter" placeholder="e.g. Chapter 42 or Volume 3" /></label>
             <div class="link-fields"><label>Reading / reference link<input name="linkUrl" type="url" placeholder="https://example.com/manga" /></label><label>Link description<input name="linkDescription" placeholder="Official reader, ranking, interview..." /></label></div>
             <label>Tags <span class="field-hint">Press Enter after each tag</span><input id="tagInput" placeholder="comfort read, slow burn, masterpiece" /></label>
             <div id="tagList" class="tag-list" aria-live="polite"></div>
