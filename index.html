@@ -72,6 +72,12 @@
           <p class="empty-state" id="emptyState">No manga found for that search.</p>
         </section>
 
+        <section class="section-block ranking-section" id="rankings">
+          <div class="section-heading"><div><p class="eyebrow">My fixed framework</p><h2>Manga rankings</h2></div><span class="ranking-average" id="rankingAverage">Average 8.6 / 10</span></div>
+          <div class="ranking-controls"><label>Filter by score<select id="scoreFilter"><option value="0">All scores</option><option value="9">9+ only</option><option value="8">8+ only</option><option value="7">7+ only</option></select></label><label>Filter by category<select id="categoryFilter"><option value="all">All categories</option></select></label></div>
+          <div class="ranking-grid" id="rankingGrid"></div>
+        </section>
+
         <section class="lower-grid" id="activity">
           <article class="activity-panel"><div class="section-heading"><div><p class="eyebrow">Journal archive</p><h2>Recent notes</h2></div><a href="#activity" class="text-link">Browse archive <span>→</span></a></div><div class="activity-item"><span class="activity-avatar">LV</span><p><strong>My note</strong> on <b>Solanin</b><small>Updated 12 min ago · <em>5.0 ★</em></small></p><span class="activity-cover">SOL</span></div><div class="activity-item"><span class="activity-avatar peach">LV</span><p><strong>My note</strong> on <b>Look Back</b><small>Updated yesterday · “A short and beautiful story”</small></p><span class="activity-cover look">LB</span></div><div class="activity-item"><span class="activity-avatar green">LV</span><p><strong>Reading log</strong> for <b>Pluto</b><small>Updated 2 days ago · 8 chapters</small></p><span class="activity-cover pluto">P</span></div></article>
           <article class="quote-panel"><span class="quote-mark">“</span><p>The stories I remember most are the ones that find me at just the right moment.</p><div class="quote-line"></div><small>A private journal, open to readers</small></article>
@@ -79,7 +85,6 @@
       </main>
     </div>
 
-    <dialog id="detailDialog" class="detail-dialog"><button class="close-dialog" id="closeDetail" aria-label="Close manga entry">×</button><div id="detailContent"></div></dialog>
     <script src="app.js"></script>
   </body>
 </html>

@@ -25,7 +25,7 @@
       </div>
 
       <form id="mangaEditorForm" class="editor-form">
-        <section class="editor-main-column">
+          <section class="editor-main-column">
           <div class="editor-panel basic-details">
             <div class="panel-heading"><div><p class="eyebrow">About the manga</p><h2>Story details</h2></div><span class="private-pill">Private edit</span></div>
             <div class="detail-grid">
@@ -39,12 +39,6 @@
             <input type="hidden" name="tags" id="tagsValue" />
           </div>
 
-          <div class="editor-panel writing-panel">
-            <div class="panel-heading"><div><p class="eyebrow">The long read</p><h2>My notes</h2></div><span class="word-count" id="wordCount">0 words</span></div>
-            <textarea id="notes" name="notes" required placeholder="Start writing your thoughts about this manga...&#10;&#10;There is no small limit here. Add a scene-by-scene reading log, character notes, themes, favorite panels, reread thoughts, spoilers, or anything else you want to remember."></textarea>
-            <p class="field-hint">No word limit. Your browser will keep this draft locally until you save it.</p>
-          </div>
-
           <div class="editor-panel image-panel">
             <div class="panel-heading"><div><p class="eyebrow">Visual archive</p><h2>Images from this manga</h2></div><span class="field-hint">Stored in this browser</span></div>
             <label>Front cover image <span class="field-hint">One image</span><input id="coverImage" type="file" accept="image/*" /></label>
@@ -52,14 +46,19 @@
             <label>Panel gallery <span class="field-hint">Select multiple images</span><input id="panelImages" type="file" accept="image/*" multiple /></label>
             <div id="panelPreview" class="panel-preview" aria-live="polite"></div>
           </div>
+
+          <div class="editor-panel writing-panel">
+            <div class="panel-heading"><div><p class="eyebrow">The long read</p><h2>My notes</h2></div><span class="word-count" id="wordCount">0 words</span></div>
+            <textarea id="notes" name="notes" required placeholder="Start writing your thoughts about this manga...&#10;&#10;There is no small limit here. Add a scene-by-scene reading log, character notes, themes, favorite panels, reread thoughts, spoilers, or anything else you want to remember."></textarea>
+            <p class="field-hint">No word limit. Your browser will keep this draft locally until you save it.</p>
+          </div>
         </section>
 
         <aside class="editor-sidebar">
           <section class="editor-panel ratings-panel">
-            <div class="panel-heading"><div><p class="eyebrow">Your framework</p><h2>Ratings</h2></div><span class="rating-total" id="ratingTotal">— / 10</span></div>
-            <p class="panel-copy">Score each idea from 0 to 10. Start with a few and add up to as many categories as you need.</p>
-            <div id="ratingList" class="rating-list"></div>
-            <button type="button" class="add-row-button" id="addRating"><span>＋</span> Add rating category</button>
+            <div class="panel-heading"><div><p class="eyebrow">Public ranking</p><h2>Ratings are fixed</h2></div></div>
+            <p class="panel-copy">This editor does not change the ranking framework. The homepage and manga pages use the fixed 20-category system in the code.</p>
+            <a class="text-link" href="index.html#rankings">View ranking framework →</a>
           </section>
           <section class="editor-panel save-panel">
             <p class="eyebrow">Ready when you are</p>

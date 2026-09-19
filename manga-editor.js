@@ -4,8 +4,6 @@ const wordCount = document.querySelector('#wordCount');
 const tagInput = document.querySelector('#tagInput');
 const tagList = document.querySelector('#tagList');
 const tagsValue = document.querySelector('#tagsValue');
-const ratingList = document.querySelector('#ratingList');
-const ratingTotal = document.querySelector('#ratingTotal');
 const saveStatus = document.querySelector('#saveStatus');
 const coverImage = document.querySelector('#coverImage');
 const panelImages = document.querySelector('#panelImages');
@@ -14,7 +12,6 @@ const panelPreview = document.querySelector('#panelPreview');
 let coverImageData = '';
 let panelImageData = [];
 
-const defaultRatings = ['Story', 'Characters', 'Art', 'World-building', 'Emotional impact'];
 
 function updateWordCount() {
   const words = notes.value.trim() ? notes.value.trim().split(/\s+/).length : 0;
@@ -42,30 +39,6 @@ function addTag(value) {
   updateTags();
 }
 
-function updateRatingTotal() {
-  const values = [...ratingList.querySelectorAll('input[type="number"]')]
-    .map((input) => Number(input.value))
-    .filter((value) => Number.isFinite(value));
-  if (!values.length) {
-    ratingTotal.textContent = '— / 10';
-    return;
-  }
-  const average = values.reduce((sum, value) => sum + value, 0) / values.length;
-  ratingTotal.textContent = `${average.toFixed(1)} / 10`;
-}
-
-function addRatingRow(name = '') {
-  const row = document.createElement('div');
-  row.className = 'rating-row';
-  row.innerHTML = `<input class="rating-name" type="text" value="${name}" placeholder="Category name" aria-label="Rating category" required /><input class="rating-number" type="number" min="0" max="10" step="0.1" value="0" aria-label="Score from 0 to 10" required /><span>/ 10</span><button class="remove-row" type="button" aria-label="Remove rating category">×</button>`;
-  row.querySelector('.rating-number').addEventListener('input', updateRatingTotal);
-  row.querySelector('.remove-row').addEventListener('click', () => {
-    row.remove();
-    updateRatingTotal();
-  });
-  ratingList.append(row);
-}
-
 function readImage(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -86,7 +59,6 @@ function renderImagePreviews() {
   });
 }
 
-defaultRatings.forEach((rating) => addRatingRow(rating));
 notes.addEventListener('input', updateWordCount);
 tagInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter' || event.key === ',') {
@@ -95,7 +67,6 @@ tagInput.addEventListener('keydown', (event) => {
     tagInput.value = '';
   }
 });
-document.querySelector('#addRating').addEventListener('click', () => addRatingRow());
 coverImage.addEventListener('change', async () => {
   coverImageData = coverImage.files[0] ? await readImage(coverImage.files[0]) : '';
   renderImagePreviews();
@@ -110,10 +81,6 @@ panelImages.addEventListener('change', async () => {
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   const data = new FormData(form);
-  const ratings = [...ratingList.querySelectorAll('.rating-row')].map((row) => ({
-    category: row.querySelector('.rating-name').value.trim(),
-    score: Number(row.querySelector('.rating-number').value),
-  })).filter((rating) => rating.category);
   const entry = {
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
     title: data.get('title').trim(),
@@ -124,7 +91,6 @@ form.addEventListener('submit', (event) => {
     notes: data.get('notes'),
     coverImage: coverImageData,
     panelImages: panelImageData,
-    ratings,
     createdAt: new Date().toISOString(),
   };
   const entries = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
@@ -135,4 +101,3 @@ form.addEventListener('submit', (event) => {
 });
 
 updateWordCount();
-updateRatingTotal();
