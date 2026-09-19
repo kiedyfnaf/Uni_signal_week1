@@ -91,6 +91,19 @@ document.querySelectorAll('.manga-card').forEach((card) => {
   });
 });
 
+const mangaGrid = document.querySelector('#mangaGrid');
+const gridView = document.querySelector('#gridView');
+const listView = document.querySelector('#listView');
+function setCollectionView(view) {
+  mangaGrid.classList.toggle('list-view', view === 'list');
+  gridView.classList.toggle('active', view === 'grid');
+  listView.classList.toggle('active', view === 'list');
+  localStorage.setItem('mangaCollectionView', view);
+}
+gridView.addEventListener('click', () => setCollectionView('grid'));
+listView.addEventListener('click', () => setCollectionView('list'));
+setCollectionView(localStorage.getItem('mangaCollectionView') || 'grid');
+
 const rankingGrid = document.querySelector('#rankingGrid');
 const scoreFilter = document.querySelector('#scoreFilter');
 const categoryFilter = document.querySelector('#categoryFilter');

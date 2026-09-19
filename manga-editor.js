@@ -9,6 +9,7 @@ const coverImage = document.querySelector('#coverImage');
 const panelImages = document.querySelector('#panelImages');
 const coverPreview = document.querySelector('#coverPreview');
 const panelPreview = document.querySelector('#panelPreview');
+const genreSelect = document.querySelector('#genreSelect');
 let coverImageData = '';
 let panelImageData = [];
 const rankingCategories = ['Visual style', 'Main cast', 'Supporting cast', 'Character depth', 'Character chemistry', 'Plot', 'Pacing', 'World-building', 'Dialogue', 'Humor', 'Drama', 'Emotional impact', 'Themes', 'Originality', 'Panel composition', 'Action', 'Romance', 'Atmosphere', 'Ending', 'Reread value'];
@@ -84,7 +85,7 @@ function restoreDraft() {
   if (!draft) return;
   form.elements.title.value = draft.title || '';
   form.elements.author.value = draft.author || '';
-  form.elements.genre.value = draft.genre || '';
+  [...genreSelect.options].forEach((option) => { option.selected = (draft.genre || '').split(' / ').includes(option.value); });
   form.elements.cover.value = draft.cover || 'cover-witch';
   notes.value = draft.notes || '';
   (draft.tags || []).forEach(addTag);
@@ -127,7 +128,7 @@ form.addEventListener('submit', (event) => {
     id: draftId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
     title: data.get('title').trim(),
     author: data.get('author').trim(),
-    genre: data.get('genre').trim(),
+    genre: [...genreSelect.selectedOptions].map((option) => option.value).join(' / '),
     cover: data.get('cover'),
     tags: JSON.parse(tagsValue.value || '[]'),
     notes: data.get('notes'),
