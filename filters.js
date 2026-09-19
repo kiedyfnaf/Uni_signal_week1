@@ -62,7 +62,7 @@ function render() {
     const score = category === 'all' ? averageFor(manga) : scoresFor(manga)[categoryIndex];
     const visitorScore = visitorAverageFor(manga);
     const image = manga.coverImage ? `<img src="${manga.coverImage}" alt="${escapeHtml(manga.title)} cover" />` : '<span>M</span>';
-    return `<a class="filter-result" href="manga-view.html?title=${encodeURIComponent(manga.title)}"><div class="filter-result-cover ${escapeHtml(manga.cover || '')}">${image}</div><div><strong>${escapeHtml(manga.title)}</strong><p>${escapeHtml(manga.author)} · ${escapeHtml(manga.genre)}</p><small>Added ${new Date(manga.createdAt || '2026-09-01').toLocaleDateString()} · Visitors ${visitorScore === null ? '—' : visitorScore.toFixed(1)} / 10</small></div><b>${score.toFixed(1)} <small>/ 10</small></b></a>`;
+    return `<a class="filter-result" href="manga-view.html?title=${encodeURIComponent(manga.title)}"><div class="filter-result-cover ${escapeHtml(manga.cover || '')}">${image}</div><div class="filter-result-copy"><strong>${escapeHtml(manga.title)}</strong><p>${escapeHtml(manga.author)} · ${escapeHtml(manga.genre)}</p><small>My ${score.toFixed(1)} / 10 · Visitors ${visitorScore === null ? '—' : visitorScore.toFixed(1)} / 10</small></div><b class="filter-result-score">${score.toFixed(1)} <small>my score</small><em>${visitorScore === null ? '—' : visitorScore.toFixed(1)} <small>visitors</small></em></b></a>`;
   }).join('') || '<p class="empty-state visible">No manga matches those filters.</p>';
 }
 genreCheckboxes.addEventListener('change', render);
