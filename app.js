@@ -54,7 +54,7 @@ postForm.addEventListener('submit', (event) => {
   newCard.dataset.title = title;
   newCard.dataset.author = author;
   newCard.dataset.genre = genre;
-  newCard.innerHTML = `<div class="cover cover-witch"><span class="cover-kicker">NUEVO</span><strong>${title}</strong><span class="cover-volume">DE LA COMUNIDAD</span></div><div class="manga-info"><div><h3>${title}</h3><p>${author} · ${genre}</p></div><span class="score">5.0 <b>★</b></span></div><div class="card-meta"><span>Tu publicación</span><button class="save-button" aria-label="Guardar ${title}">♡</button></div>`;
+  newCard.innerHTML = `<div class="cover cover-witch"><span class="cover-kicker">NEW</span><strong>${title}</strong><span class="cover-volume">FROM THE COMMUNITY</span></div><div class="manga-info"><div><h3>${title}</h3><p>${author} · ${genre}</p></div><span class="score">5.0 <b>★</b></span></div><div class="card-meta"><span>Your post</span><button class="save-button" aria-label="Save ${title}">♡</button></div>`;
   document.querySelector('#mangaGrid').prepend(newCard);
   newCard.querySelector('.save-button').addEventListener('click', (buttonEvent) => {
     const button = buttonEvent.currentTarget;
