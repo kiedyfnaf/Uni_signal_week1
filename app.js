@@ -1,6 +1,21 @@
 const searchInput = document.querySelector('#searchInput');
 let cards = [...document.querySelectorAll('.manga-card')];
 const emptyState = document.querySelector('#emptyState');
+const adminOnlyElements = [...document.querySelectorAll('.admin-only')];
+const loginElements = [...document.querySelectorAll('.login-button')];
+
+async function setupAuthUi() {
+  let user = null;
+  try {
+    user = await MangaAuth.getUser();
+  } catch {
+    user = null;
+  }
+  const isAdmin = user?.role === 'admin';
+  adminOnlyElements.forEach((element) => { element.style.display = isAdmin ? '' : 'none'; });
+  loginElements.forEach((element) => { element.style.display = user ? 'none' : 'inline-flex'; });
+  return user;
+}
 
 const rankingCategories = [
   'Visual style', 'Main cast', 'Supporting cast', 'Character depth', 'Character chemistry',
@@ -105,7 +120,8 @@ function loadSavedEntries() {
   cards = [...document.querySelectorAll('.manga-card')];
 }
 
-async function hydrateMangaData() {
+async function hydrateMangaData(user) {
+  if (!user) return;
   try {
     const response = await MangaAuth.api('/api/manga');
     localStorage.setItem('mangaJournalEntries', JSON.stringify(response.manga));
@@ -114,11 +130,11 @@ async function hydrateMangaData() {
     decorateCardScores();
     renderRankings();
   } catch (error) {
-    if (error.message === 'Authentication required.') window.location.replace('login.html?returnTo=index.html');
+    console.error('Could not load shared manga data.', error);
   }
 }
 
-hydrateMangaData();
+setupAuthUi().then(hydrateMangaData);
 
 function decorateCardScores() {
   cards.forEach((card) => {

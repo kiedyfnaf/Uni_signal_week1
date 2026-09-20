@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="site.css" />
-    <style>.login-button{display:inline-flex;align-items:center;justify-content:center;border:1px solid #24211f;color:#24211f;background:#fffdf9;text-decoration:none;padding:10px 15px;font-size:11px;font-weight:700}.login-button:hover{background:#24211f;color:#fffdf9}.welcome-actions{display:flex;align-items:center;gap:10px}</style>
+    <style>.login-button{display:inline-flex;align-items:center;justify-content:center;border:1px solid #24211f;color:#24211f;background:#fffdf9;text-decoration:none;padding:10px 15px;font-size:11px;font-weight:700}.login-button:hover{background:#24211f;color:#fffdf9}.welcome-actions{display:flex;align-items:center;gap:10px}.admin-only{display:none}</style>
   </head>
   <body>
     <div class="app-shell">
@@ -25,14 +25,14 @@
           <a class="nav-item" href="filters.html"><span class="nav-symbol">⌘</span> Filters</a>
           <a class="nav-item" href="#rankings"><span class="nav-symbol">↗</span> Rankings</a>
           <a class="nav-item" href="history.html"><span class="nav-symbol">◷</span> History</a>
-          <a class="nav-item" href="drafts.html"><span class="nav-symbol">◇</span> Drafts <span class="nav-count" id="draftCount">0</span></a>
+          <a class="nav-item admin-only" href="drafts.html"><span class="nav-symbol">◇</span> Drafts <span class="nav-count" id="draftCount">0</span></a>
         </nav>
         <div class="sidebar-divider"></div>
         <p class="eyebrow">My lists</p>
         <nav class="list-nav" aria-label="My lists">
           <a href="#saved"><span class="list-dot coral"></span>All manga <small id="listMangaCount">0</small></a>
           <a href="#rankings"><span class="list-dot mint"></span>Top rated <small>20</small></a>
-          <a href="manga-editor.html"><span class="list-dot lilac"></span>Add manga <small>＋</small></a>
+          <a class="admin-only" href="manga-editor.html"><span class="list-dot lilac"></span>Add manga <small>＋</small></a>
         </nav>
         <div class="sidebar-footer">
           <div class="profile-mini"><span class="avatar">LV</span><span><strong>Lucia Vega</strong><small>@lucia.vee</small></span><button class="icon-button" aria-label="More options">•••</button></div>
@@ -43,12 +43,12 @@
         <header class="topbar">
           <div class="mobile-brand"><span class="brand-mark">M</span> MangaShelf</div>
           <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search title, author, or genre..." aria-label="Search manga" /><kbd>/</kbd></label>
-          <div class="top-actions"><a class="reader-label drafts-nav" href="drafts.html">Saved drafts</a><a class="button login-button" href="login.html">Log in</a><span class="reader-label">Read-only view</span><button class="avatar">LV</button></div>
+          <div class="top-actions"><a class="reader-label drafts-nav admin-only" href="drafts.html">Saved drafts</a><a class="button login-button" href="login.html">Log in</a><span class="reader-label">Read-only view</span><button class="avatar">LV</button></div>
         </header>
 
         <section class="welcome-row" id="explore">
           <div><p class="eyebrow">Thursday, September 19</p><h1>My manga journal<span>.</span></h1><p class="subheading">Personal notes on the stories I am reading and loving.</p></div>
-          <div class="welcome-actions"><a class="button button-dark" href="manga-editor.html"><span>✎</span> Add manga</a><a class="button login-button" href="login.html">Log in</a></div>
+          <div class="welcome-actions"><a class="button button-dark admin-only" href="manga-editor.html"><span>✎</span> Add manga</a><a class="button login-button" href="login.html">Log in</a></div>
         </section>
 
         <section class="metric-strip" aria-label="Journal summary">

@@ -21,6 +21,10 @@ const genreSelectionCount = document.querySelector('#genreSelectionCount');
 const settingsDialog = document.querySelector('#settingsDialog');
 const themeSelect = document.querySelector('#themeSelect');
 
+MangaAuth.getUser().then((user) => {
+  if (user?.role === 'admin') document.querySelectorAll('.admin-only').forEach((element) => { element.style.display = ''; });
+}).catch(() => {});
+
 function applyTheme(theme) {
   document.body.dataset.theme = theme;
   localStorage.setItem('mangaShelfTheme', theme);
