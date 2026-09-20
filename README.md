@@ -27,13 +27,27 @@ This project uses Cloudflare Pages Functions and D1 for real shared accounts and
 
 	These names are case-insensitive. Users with those names become admins when they register; every other unique username is view-only.
 
-4. Deploy the Pages site from this folder:
+4. For a direct CLI deployment from your own terminal, deploy the Pages site from this folder:
 
 	```bash
 	npx wrangler pages deploy . --project-name mangacave
 	```
 
 	In Cloudflare Pages, set the D1 binding named `DB` and the `ADMIN_USERNAMES` variable for the production environment as well.
+
+### Cloudflare Pages Git deployment
+
+If this repository is connected to Cloudflare Pages, do **not** set `npx wrangler pages deploy ...` as the Pages build command. Cloudflare Pages is already the deploy system; that command would make the build try to deploy the same project again and requires a second API call with a token.
+
+Use these Pages build settings instead:
+
+- Build command: leave empty.
+- Build output directory: `.`
+- Root directory: `/` (the repository root).
+
+Pages will publish the static files and detect the `functions/` directory. In **Settings → Functions**, add the D1 binding `DB` for both Production and Preview if needed. Add `ADMIN_USERNAMES` as an environment variable for the same environments. No Cloudflare API token is needed in the Pages build environment.
+
+Use `npx wrangler pages deploy . --project-name mangacave` only from a local terminal or an external CI workflow, never as the build command of the same Pages project.
 
 5. Open `/login.html` and register each account. The first account does not have special setup behavior: its role comes from whether its username is in `ADMIN_USERNAMES`.
 
