@@ -50,6 +50,8 @@ Use these Pages build settings instead:
 
 Pages will publish the static files and detect the `functions/` directory. In this Git mode, add the D1 binding `DB` under **Settings → Functions → D1 database bindings** for both Production and Preview. Add `ADMIN_USERNAMES` as an environment variable for the same environments. No Cloudflare API token is needed in the Pages build environment.
 
+The binding must be added to the **Pages project** `mangacave`, not to a separate Worker with the same name and not from the D1 database overview. The binding form must use variable name `DB` and database `mangacave`. If the deployment returns `error code: 1101` from `/api/manga`, the Pages runtime does not have this binding yet. `/api/auth/me` can still return `{"user":null}` without D1 because it exits before querying when no session cookie exists.
+
 Use `npx wrangler pages deploy . --project-name mangacave` only from a local terminal or an external CI workflow, never as the build command of the same Pages project. In CLI mode, the `[[d1_databases]]` entry in `wrangler.toml` supplies the `DB` binding, so do not also configure a second binding in the dashboard.
 
 5. Open `/login.html` and register each account. The first account does not have special setup behavior: its role comes from whether its username is in `ADMIN_USERNAMES`.
@@ -82,6 +84,15 @@ npx wrangler pages project create mangacave
 After creating the project, run the deploy command from your local terminal, not from the Pages build settings. If the command still returns error 10000, the token is either scoped to a different account, has not been replaced in the shell/CI environment, or does not include `Account > Cloudflare Pages > Edit`; the account's Super Administrator membership does not override token permissions.
 
 The D1 binding must be named `DB`, and `database_id` in `wrangler.toml` must be replaced with the real ID returned by `wrangler d1 create`. When using a Pages dashboard build instead of the Wrangler deploy command, configure the same D1 binding and `ADMIN_USERNAMES` variable in the production environment.
+
+After configuring the binding, verify the deployment before testing the custom domain:
+
+```bash
+curl -i https://mangacave.pages.dev/api/auth/me
+curl -i https://mangacave.pages.dev/api/manga
+```
+
+The first request should return `200` with `{"user":null}` for a visitor. The second should return `401` with `Authentication required.`. A `500` with error `1101` means `DB` is still missing from the Pages deployment.
 
 For local static preview only:
 

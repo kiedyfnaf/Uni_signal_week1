@@ -3,6 +3,7 @@ let cards = [...document.querySelectorAll('.manga-card')];
 const emptyState = document.querySelector('#emptyState');
 const adminOnlyElements = [...document.querySelectorAll('.admin-only')];
 const loginElements = [...document.querySelectorAll('.login-button')];
+const logoutButton = document.querySelector('#logoutButton');
 
 async function setupAuthUi() {
   let user = null;
@@ -14,8 +15,11 @@ async function setupAuthUi() {
   const isAdmin = user?.role === 'admin';
   adminOnlyElements.forEach((element) => { element.style.display = isAdmin ? '' : 'none'; });
   loginElements.forEach((element) => { element.style.display = user ? 'none' : 'inline-flex'; });
+  if (logoutButton) logoutButton.style.display = user ? 'inline-flex' : 'none';
   return user;
 }
+
+logoutButton?.addEventListener('click', () => MangaAuth.signOut());
 
 const rankingCategories = [
   'Visual style', 'Main cast', 'Supporting cast', 'Character depth', 'Character chemistry',
