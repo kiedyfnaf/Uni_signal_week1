@@ -80,12 +80,20 @@ function loadSavedEntries() {
       const average = getPersonalAverage(entry.title);
     const visitorAverage = getVisitorAverage(entry.title);
       const combined = visitorAverage === null ? average : (average + visitorAverage) / 2;
-      card.innerHTML = `${coverMarkup}<div class="manga-info"><div><h3>${escapeHtml(entry.title)}</h3><p>${escapeHtml(entry.author)} · ${escapeHtml(entry.genre)}</p><div class="score-pair"><span class="score">${average.toFixed(1)} <b>★</b><small>My score</small></span><span class="score visitor-score">${visitorAverage === null ? '—' : visitorAverage.toFixed(1)} <b>★</b><small>Visitors</small></span><span class="score combined-score">${combined.toFixed(1)} <b>★</b><small>Combined</small></span></div></div></div><p class="manga-note">“${escapeHtml(entry.notes.split(/\s+/).slice(0, 18).join(' '))}...”</p><div class="card-meta"><span>${entry.tags.length} tags · personal notes</span><button class="save-button" aria-label="Save ${escapeHtml(entry.title)}">♡</button></div>`;
+      card.innerHTML = `${coverMarkup}<div class="manga-info"><div><h3>${escapeHtml(entry.title)}</h3><p>${escapeHtml(entry.author)} · ${escapeHtml(entry.genre)}</p><small class="creator-label">Created by ${escapeHtml(entry.creatorName || 'MangaShelf')}</small><div class="score-pair"><span class="score">${average.toFixed(1)} <b>★</b><small>My score</small></span><span class="score visitor-score">${visitorAverage === null ? '—' : visitorAverage.toFixed(1)} <b>★</b><small>Visitors</small></span><span class="score combined-score">${combined.toFixed(1)} <b>★</b><small>Combined</small></span></div></div></div><p class="manga-note">“${escapeHtml(entry.notes.split(/\s+/).slice(0, 18).join(' '))}...”</p><div class="card-meta"><span>${entry.tags.length} tags · ${entry.viewed ? 'viewed' : 'unviewed'}</span><button class="viewed-toggle" type="button" aria-pressed="${entry.viewed}">${entry.viewed ? 'Mark unviewed' : 'Mark viewed'}</button><button class="save-button" aria-label="Save ${escapeHtml(entry.title)}">♡</button></div>`;
     grid.prepend(card);
     card.querySelector('.save-button').addEventListener('click', (event) => {
       const button = event.currentTarget;
       const saved = button.classList.toggle('saved');
       button.textContent = saved ? '♥' : '♡';
+    });
+    card.querySelector('.viewed-toggle').addEventListener('click', async (event) => {
+      event.stopPropagation();
+      const viewed = !entry.viewed;
+      await MangaAuth.api(`/api/manga/${encodeURIComponent(entry.id)}/viewed`, { method: 'POST', body: JSON.stringify({ viewed }) });
+      entry.viewed = viewed;
+      event.currentTarget.textContent = viewed ? 'Mark unviewed' : 'Mark viewed';
+      event.currentTarget.setAttribute('aria-pressed', viewed);
     });
   });
     const storedEntries = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
@@ -97,7 +105,20 @@ function loadSavedEntries() {
   cards = [...document.querySelectorAll('.manga-card')];
 }
 
-loadSavedEntries();
+async function hydrateMangaData() {
+  try {
+    const response = await MangaAuth.api('/api/manga');
+    localStorage.setItem('mangaJournalEntries', JSON.stringify(response.manga));
+    loadSavedEntries();
+    cards = [...document.querySelectorAll('.manga-card')];
+    decorateCardScores();
+    renderRankings();
+  } catch (error) {
+    if (error.message === 'Authentication required.') window.location.replace('login.html?returnTo=index.html');
+  }
+}
+
+hydrateMangaData();
 
 function decorateCardScores() {
   cards.forEach((card) => {

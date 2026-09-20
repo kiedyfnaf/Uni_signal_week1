@@ -1,3 +1,5 @@
+MangaAuth.requireAdmin();
+
 const form = document.querySelector('#mangaEditorForm');
 const notes = document.querySelector('#notes');
 const wordCount = document.querySelector('#wordCount');
@@ -122,7 +124,7 @@ panelImages.addEventListener('change', async () => {
   panelImages.value = '';
 });
 
-form.addEventListener('submit', (event) => {
+form.addEventListener('submit', async (event) => {
   event.preventDefault();
   const data = new FormData(form);
   const saveMode = event.submitter?.value || 'entry';
@@ -143,18 +145,25 @@ form.addEventListener('submit', (event) => {
     ratings,
     createdAt: new Date().toISOString(),
   };
-  const storageKey = saveMode === 'draft' ? 'mangaJournalDrafts' : 'mangaJournalEntries';
+  if (saveMode === 'entry') {
+    saveStatus.textContent = 'Saving manga...';
+    try {
+      await MangaAuth.api('/api/manga', { method: 'POST', body: JSON.stringify({ ...entry, linkUrl: entry.linkUrl, linkDescription: entry.linkDescription }) });
+      saveStatus.textContent = 'Entry saved. Returning to your journal...';
+      window.setTimeout(() => { window.location.href = 'index.html'; }, 500);
+    } catch (error) {
+      saveStatus.textContent = error.message;
+    }
+    return;
+  }
+  const storageKey = 'mangaJournalDrafts';
   const savedItems = JSON.parse(localStorage.getItem(storageKey) || '[]');
   const existingIndex = savedItems.findIndex((item) => item.id === entry.id);
   if (existingIndex >= 0) savedItems[existingIndex] = entry;
   else savedItems.unshift(entry);
   localStorage.setItem(storageKey, JSON.stringify(savedItems));
-  if (saveMode === 'entry' && draftId) {
-    const remainingDrafts = JSON.parse(localStorage.getItem('mangaJournalDrafts') || '[]').filter((item) => item.id !== draftId);
-    localStorage.setItem('mangaJournalDrafts', JSON.stringify(remainingDrafts));
-  }
-  saveStatus.textContent = saveMode === 'draft' ? 'Draft saved. Opening drafts...' : 'Entry saved. Returning to your journal...';
-  window.setTimeout(() => { window.location.href = saveMode === 'draft' ? 'drafts.html' : 'index.html'; }, 500);
+  saveStatus.textContent = 'Draft saved. Opening drafts...';
+  window.setTimeout(() => { window.location.href = 'drafts.html'; }, 500);
 });
 
 updateWordCount();

@@ -1,3 +1,5 @@
+MangaAuth.requireAdmin();
+
 const draftList = document.querySelector('#draftList');
 const drafts = JSON.parse(localStorage.getItem('mangaJournalDrafts') || '[]');
 function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])); }
