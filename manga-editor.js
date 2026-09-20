@@ -1,4 +1,5 @@
-MangaAuth.requireAdmin();
+document.body.hidden = true;
+MangaAuth.requireAdmin().then(() => { document.body.hidden = false; }).catch(() => {});
 
 const form = document.querySelector('#mangaEditorForm');
 const notes = document.querySelector('#notes');

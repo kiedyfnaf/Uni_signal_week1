@@ -19,13 +19,19 @@ async function redirectToLogin() {
 
 async function requireUser() {
   const user = await getUser();
-  if (!user) await redirectToLogin();
+  if (!user) {
+    await redirectToLogin();
+    throw new Error('Authentication required.');
+  }
   return user;
 }
 
 async function requireAdmin() {
   const user = await requireUser();
-  if (user?.role !== 'admin') window.location.replace('index.html');
+  if (user.role !== 'admin') {
+    window.location.replace('index.html');
+    throw new Error('Administrator access required.');
+  }
   return user;
 }
 

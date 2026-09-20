@@ -1,4 +1,5 @@
-MangaAuth.requireAdmin();
+document.body.hidden = true;
+MangaAuth.requireAdmin().then(() => { document.body.hidden = false; }).catch(() => {});
 
 const draftList = document.querySelector('#draftList');
 const drafts = JSON.parse(localStorage.getItem('mangaJournalDrafts') || '[]');
