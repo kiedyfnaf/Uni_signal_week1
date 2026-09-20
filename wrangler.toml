@@ -3,9 +3,9 @@ compatibility_date = "2026-09-20"
 pages_build_output_dir = "."
 
 [[d1_databases]]
-binding = "DB"
+binding = "mangacave"
 database_name = "mangacave"
-database_id = "0985901b-ab47-4a83-89ba-e80258a0c785"
+database_id = "f54b2407-f3a0-499f-91f2-e97f6e59b15d"
 
 [vars]
 ADMIN_USERNAMES = "admin,lucia"
