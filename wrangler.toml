@@ -1,11 +1,12 @@
 name = "mangacave"
 compatibility_date = "2026-09-20"
+account_id = "78beddfc5972586378beb89e600a4579"
 pages_build_output_dir = "."
 
 [[d1_databases]]
 binding = "DB"
 database_name = "mangacave"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "0985901b-ab47-4a83-89ba-e80258a0c785"
 
 [vars]
 ADMIN_USERNAMES = "admin,lucia"
