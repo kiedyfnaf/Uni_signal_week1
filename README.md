@@ -20,6 +20,8 @@ This project uses Cloudflare Pages Functions and D1 for real shared accounts and
 	npx wrangler d1 execute mangacave --remote --file=schema.sql
 	```
 
+	The second command is required. It creates the `users`, `sessions`, `manga`, and `manga_views` tables in the remote database. Without it, the site can load but registration and login will fail.
+
 3. Set the allowed administrator usernames in `wrangler.toml`, for example:
 
 	```toml
@@ -46,9 +48,9 @@ Use these Pages build settings instead:
 - Build output directory: `.`
 - Root directory: leave blank or use the repository root.
 
-Pages will publish the static files and detect the `functions/` directory. In **Settings → Functions**, add the D1 binding `DB` for both Production and Preview if needed. Add `ADMIN_USERNAMES` as an environment variable for the same environments. No Cloudflare API token is needed in the Pages build environment.
+Pages will publish the static files and detect the `functions/` directory. In this Git mode, add the D1 binding `DB` under **Settings → Functions → D1 database bindings** for both Production and Preview. Add `ADMIN_USERNAMES` as an environment variable for the same environments. No Cloudflare API token is needed in the Pages build environment.
 
-Use `npx wrangler pages deploy . --project-name mangacave` only from a local terminal or an external CI workflow, never as the build command of the same Pages project.
+Use `npx wrangler pages deploy . --project-name mangacave` only from a local terminal or an external CI workflow, never as the build command of the same Pages project. In CLI mode, the `[[d1_databases]]` entry in `wrangler.toml` supplies the `DB` binding, so do not also configure a second binding in the dashboard.
 
 5. Open `/login.html` and register each account. The first account does not have special setup behavior: its role comes from whether its username is in `ADMIN_USERNAMES`.
 
