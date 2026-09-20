@@ -5,10 +5,11 @@
 
 This project uses Cloudflare Pages Functions and D1 for real shared accounts and manga data.
 
-1. Install Wrangler and authenticate:
+1. Install Wrangler only if you want to deploy from your own terminal or CI:
 
 	```bash
 	npm install --save-dev wrangler
+	# Use either browser login or CLOUDFLARE_API_TOKEN, not both.
 	npx wrangler login
 	```
 
@@ -37,13 +38,13 @@ This project uses Cloudflare Pages Functions and D1 for real shared accounts and
 
 ### Cloudflare Pages Git deployment
 
-If this repository is connected to Cloudflare Pages, do **not** set `npx wrangler pages deploy ...` as the Pages build command. Cloudflare Pages is already the deploy system; that command would make the build try to deploy the same project again and requires a second API call with a token.
+If this repository is connected to Cloudflare Pages, do **not** set `npx wrangler pages deploy ...` as the Pages build command. Cloudflare Pages is already the deploy system; that command would make the build try to deploy the same project again and requires a second API call with a token. The `account_id` line is optional in this Git deployment mode and should remain omitted if the Pages dashboard manages the project account.
 
 Use these Pages build settings instead:
 
 - Build command: leave empty.
 - Build output directory: `.`
-- Root directory: `/` (the repository root).
+- Root directory: leave blank or use the repository root.
 
 Pages will publish the static files and detect the `functions/` directory. In **Settings → Functions**, add the D1 binding `DB` for both Production and Preview if needed. Add `ADMIN_USERNAMES` as an environment variable for the same environments. No Cloudflare API token is needed in the Pages build environment.
 
@@ -63,7 +64,7 @@ Create or edit the token in Cloudflare Dashboard → Profile → API Tokens with
 - `Account > Cloudflare Pages > Edit`.
 - `Account > Account Settings > Read`.
 
-For D1 commands, also grant `Account > D1 > Edit`. Use the token only as an environment secret and never commit it:
+For D1 commands, also grant `Account > D1 > Edit`. The token must be created for the same account that owns the `mangacave` Pages project. Use the token only as an environment secret and never commit it:
 
 ```bash
 export CLOUDFLARE_API_TOKEN='paste-the-token-in-your-terminal-only'
@@ -75,6 +76,8 @@ If the project has not been created yet, create it first with the same token:
 ```bash
 npx wrangler pages project create mangacave
 ```
+
+After creating the project, run the deploy command from your local terminal, not from the Pages build settings. If the command still returns error 10000, the token is either scoped to a different account, has not been replaced in the shell/CI environment, or does not include `Account > Cloudflare Pages > Edit`; the account's Super Administrator membership does not override token permissions.
 
 The D1 binding must be named `DB`, and `database_id` in `wrangler.toml` must be replaced with the real ID returned by `wrangler d1 create`. When using a Pages dashboard build instead of the Wrangler deploy command, configure the same D1 binding and `ADMIN_USERNAMES` variable in the production environment.
 
