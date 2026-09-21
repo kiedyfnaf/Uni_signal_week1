@@ -16,6 +16,6 @@ export async function onRequestPost({ request, env }) {
     console.error('Registration failed:', error);
     if (String(error.message).includes('UNIQUE')) return json({ error: 'That username is already taken.' }, 409);
     if (String(error.message).toLowerCase().includes('no such table')) return json({ error: 'D1 schema is missing the users table.' }, 500);
-    return json({ error: `Registration failed: ${String(error.message || error)}` }, 500);
+    return json({ error: 'Could not create account.' }, 500);
   }
 }
