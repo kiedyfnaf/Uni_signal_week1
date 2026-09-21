@@ -5,6 +5,17 @@ export function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json; charset=utf-8', ...headers } });
 }
 
+export class AuthError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.status = status;
+  }
+}
+
+export function authErrorResponse(error) {
+  return error instanceof AuthError ? json({ error: error.message }, error.status) : null;
+}
+
 export async function readJson(request) {
   try {
     return await request.json();
@@ -58,13 +69,13 @@ export async function currentUser(request, env) {
 
 export async function requireUser(request, env) {
   const user = await currentUser(request, env);
-  if (!user) throw new Response(JSON.stringify({ error: 'Authentication required.' }), { status: 401, headers: { 'content-type': 'application/json' } });
+  if (!user) throw new AuthError('Authentication required.', 401);
   return user;
 }
 
 export async function requireAdmin(request, env) {
   const user = await requireUser(request, env);
-  if (user.role !== 'admin') throw new Response(JSON.stringify({ error: 'Administrator access required.' }), { status: 403, headers: { 'content-type': 'application/json' } });
+  if (user.role !== 'admin') throw new AuthError('Administrator access required.', 403);
   return user;
 }
 
