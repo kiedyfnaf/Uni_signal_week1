@@ -18,6 +18,9 @@ let panelImageData = [];
 const rankingCategories = ['Visual style', 'Main cast', 'Supporting cast', 'Character depth', 'Character chemistry', 'Plot', 'Pacing', 'World-building', 'Dialogue', 'Humor', 'Drama', 'Emotional impact', 'Themes', 'Originality', 'Panel composition', 'Action', 'Romance', 'Atmosphere', 'Ending', 'Reread value'];
 const draftId = new URLSearchParams(window.location.search).get('draft');
 
+form.addEventListener('invalid', () => {
+  saveStatus.textContent = 'Complete the required title, author, and notes fields before saving the manga entry.';
+}, true);
 
 function updateWordCount() {
   const words = notes.value.trim() ? notes.value.trim().split(/\s+/).length : 0;
