@@ -19,9 +19,11 @@ async function setupAuthUi() {
   const profileName = document.querySelector('#profileName');
   const profileRole = document.querySelector('#profileRole');
   const profileAvatar = document.querySelector('#profileAvatar');
+  const viewModeLabel = document.querySelector('#viewModeLabel');
   if (profileName) profileName.textContent = user?.username || 'MangaCave';
   if (profileRole) profileRole.textContent = user ? (isAdmin ? 'Administrator' : 'Reader') : 'Shared journal';
   if (profileAvatar) profileAvatar.textContent = user ? user.username.slice(0, 2).toUpperCase() : 'MC';
+  if (viewModeLabel) viewModeLabel.textContent = isAdmin ? 'Admin view' : 'Read-only view';
   return user;
 }
 
