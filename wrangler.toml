@@ -10,3 +10,15 @@ database_id = "f54b2407-f3a0-499f-91f2-e97f6e59b15d"
 [vars]
 ADMIN_USERNAMES = "admin,lucia"
 SESSION_DAYS = "30"
+
+[env.production]
+name = "uni-signal-week1"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "mangacave"
+database_id = "f54b2407-f3a0-499f-91f2-e97f6e59b15d"
+
+[env.production.vars]
+ADMIN_USERNAMES = "admin,lucia"
+SESSION_DAYS = "30"
