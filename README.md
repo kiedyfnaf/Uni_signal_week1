@@ -94,6 +94,10 @@ curl -i https://mangacave.pages.dev/api/manga
 
 The first request should return `200` with `{"user":null}` for a visitor. The second should return `401` with `Authentication required.`. A `500` with error `1101` means `DB` is still missing from the Pages deployment.
 
+If `mangacave.pages.dev/api/auth/me` returns `200` with `{"user":null}` but `mangacave.pages.dev/api/manga` returns `500`, the Pages Function is deployed but its `DB` binding is missing or the remote schema has not been applied. Add the `DB` binding to the `mangacave` Pages project under both Production and Preview, then run `npx wrangler d1 execute mangacave --remote --file=schema.sql`.
+
+If `mangacave.pages.dev` reaches the function but `mangacave.org` returns `403` with `cf-mitigated: challenge`, Cloudflare is blocking the custom-domain API request before it reaches Pages. Review the custom domain's WAF, Bot Fight Mode, and rate-limit rules, and add an exception/allow rule for the site's `/api/*` paths (at minimum `GET, POST, OPTIONS`) while keeping authentication in the Pages Function. Retest both `/api/auth/me` and `/api/manga` after changing the rule.
+
 For local static preview only:
 
 ```bash

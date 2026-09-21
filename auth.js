@@ -1,7 +1,11 @@
 async function api(path, options = {}) {
   const response = await fetch(path, { credentials: 'same-origin', headers: { 'content-type': 'application/json', ...(options.headers || {}) }, ...options });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || 'Request failed.');
+  const contentType = response.headers.get('content-type') || '';
+  const data = contentType.includes('application/json') ? await response.json().catch(() => ({})) : {};
+  if (!response.ok) {
+    if (response.headers.get('cf-mitigated') === 'challenge') throw new Error(`Cloudflare blocked ${path} with a security challenge (HTTP ${response.status}).`);
+    throw new Error(data.error || `Request failed (HTTP ${response.status}).`);
+  }
   return data;
 }
 
