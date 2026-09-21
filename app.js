@@ -16,6 +16,12 @@ async function setupAuthUi() {
   adminOnlyElements.forEach((element) => { element.style.display = isAdmin ? '' : 'none'; });
   loginElements.forEach((element) => { element.style.display = user ? 'none' : 'inline-flex'; });
   if (logoutButton) logoutButton.style.display = user ? 'inline-flex' : 'none';
+  const profileName = document.querySelector('#profileName');
+  const profileRole = document.querySelector('#profileRole');
+  const profileAvatar = document.querySelector('#profileAvatar');
+  if (profileName) profileName.textContent = user?.username || 'MangaCave';
+  if (profileRole) profileRole.textContent = user ? (isAdmin ? 'Administrator' : 'Reader') : 'Shared journal';
+  if (profileAvatar) profileAvatar.textContent = user ? user.username.slice(0, 2).toUpperCase() : 'MC';
   return user;
 }
 
