@@ -11,8 +11,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="site.css" />
+    <link rel="stylesheet" href="styles.css?v=2.2" />
+    <link rel="stylesheet" href="site.css?v=2.2" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <style>.login-button,.logout-button{display:inline-flex;align-items:center;justify-content:center;border:1px solid #24211f;color:#24211f;background:#fffdf9;text-decoration:none;padding:10px 15px;font-size:11px;font-weight:700}.login-button:hover,.logout-button:hover{background:#24211f;color:#fffdf9}.logout-button{display:none;cursor:pointer}.welcome-actions{display:flex;align-items:center;gap:10px}.admin-only{display:none}</style>
   </head>
   <body>
@@ -63,7 +64,7 @@
         </section>
 
         <section class="section-block" id="saved">
-          <div class="section-heading"><div><p class="eyebrow">From my bookshelf</p><h2>Stories I’m reading</h2></div><div class="section-actions"><button class="view-toggle" id="filterFavoritesBtn" type="button" aria-pressed="false" title="Show saved favorites">♥ Saved (<span id="savedCountBadge">0</span>)</button><button class="view-toggle active" id="gridView" type="button" aria-label="Grid view">▦</button><button class="view-toggle" id="listView" type="button" aria-label="List view">☷</button><a href="filters.html" class="text-link">Filters <span>→</span></a></div></div>
+          <div class="section-heading"><div><p class="eyebrow">From my bookshelf</p><h2>Stories I’m reading</h2></div><div class="section-actions"><button class="filter-favorites-btn" id="filterFavoritesBtn" type="button" aria-pressed="false" title="Show saved favorites">♥ Saved (<span id="savedCountBadge">0</span>)</button><button class="view-toggle active" id="gridView" type="button" aria-label="Grid view">▦</button><button class="view-toggle" id="listView" type="button" aria-label="List view">☷</button><a href="filters.html" class="text-link">Filters <span>→</span></a></div></div>
           <div class="manga-grid" id="mangaGrid"></div>
           <p class="empty-state" id="emptyState">No manga found for that search.</p>
         </section>
@@ -81,8 +82,8 @@
       </main>
     </div>
 
-    <script src="brand.js"></script>
-    <script src="auth.js"></script>
-    <script src="app.js"></script>
+    <script src="brand.js?v=2.2"></script>
+    <script src="auth.js?v=2.2"></script>
+    <script src="app.js?v=2.2"></script>
   </body>
 </html>
