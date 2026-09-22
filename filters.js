@@ -1,14 +1,7 @@
-const fuck_you = 'fuck you';
 const genres = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Science fiction', 'Slice of life', 'Sports', 'Supernatural'];
 const categories = ['Visual style', 'Main cast', 'Supporting cast', 'Character depth', 'Character chemistry', 'Plot', 'Pacing', 'World-building', 'Dialogue', 'Humor', 'Drama', 'Emotional impact', 'Themes', 'Originality', 'Panel composition', 'Action', 'Romance', 'Atmosphere', 'Ending', 'Reread value'];
 const rankingScores = { Dandadan: [9.2, 9, 8.8, 8.7, 9.1, 8.9, 8.6, 8.8, 9.1, 9.4, 8.3, 8.9, 8.6, 9.2, 9.3, 9.1, 7.8, 9, 8.5, 9], 'Blue Period': [9.4, 9.3, 8.7, 9.5, 8.9, 8.8, 8.2, 8.7, 9.2, 7.2, 9.5, 9.4, 9.6, 9, 9.2, 6.5, 7.5, 9.1, 8.8, 9.4], Frieren: [9.5, 9.7, 9, 9.6, 9.5, 9.4, 9, 9.8, 9.6, 7.5, 9.7, 9.8, 9.7, 9.2, 9.6, 7.8, 8.4, 9.9, 9.4, 9.8], 'Witch Hat Atelier': [9.8, 9.1, 8.9, 9, 8.8, 9, 8.5, 9.9, 9.3, 7.8, 8.9, 9.2, 9.3, 9.7, 9.8, 6.9, 7.2, 9.7, 8.4, 9.5] };
-const sampleManga = [
-  { title: 'Dandadan', author: 'Yukinobu Tatsu', genre: 'Action / Supernatural', createdAt: '2026-09-19', cover: 'cover-dandadan' },
-  { title: 'Blue Period', author: 'Tsubasa Yamaguchi', genre: 'Drama / Art', createdAt: '2026-09-18', cover: 'cover-blue' },
-  { title: 'Frieren', author: 'Kanehito Yamada', genre: 'Fantasy / Adventure', createdAt: '2026-09-17', cover: 'cover-frieren' },
-  { title: 'Witch Hat Atelier', author: 'Kamome Shirahama', genre: 'Fantasy / Magic', createdAt: '2026-09-16', cover: 'cover-witch' },
-];
-let allManga = sampleManga;
+let allManga = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
 const genreCheckboxes = document.querySelector('#genreCheckboxes');
 const categorySelect = document.querySelector('#filterCategory');
 genreCheckboxes.innerHTML = genres.map((genre) => `<label class="checkbox-option"><input type="checkbox" value="${genre}" />${genre}</label>`).join('');
@@ -82,7 +75,8 @@ function render() {
     const score = category === 'all' ? averageFor(manga) : scoresFor(manga)[categoryIndex];
     const visitorScore = visitorAverageFor(manga);
     const image = manga.coverImage ? `<img src="${manga.coverImage}" alt="${escapeHtml(manga.title)} cover" />` : '<span>M</span>';
-    return `<a class="filter-result" href="manga-view.html?${manga.id ? `id=${encodeURIComponent(manga.id)}` : `title=${encodeURIComponent(manga.title)}`} "><div class="filter-result-cover ${escapeHtml(manga.cover || '')}">${image}</div><div class="filter-result-copy"><strong>${escapeHtml(manga.title)}</strong><p>${escapeHtml(manga.author)} · ${escapeHtml(manga.genre)}</p><small>Created by ${escapeHtml(manga.creatorName || 'MangaShelf')} · ${manga.viewed ? 'Viewed' : 'Unviewed'}</small></div><b class="filter-result-score">${score.toFixed(1)} <small>my score</small><em>${visitorScore === null ? '—' : visitorScore.toFixed(1)} <small>visitors</small></em></b></a>`;
+    const filterUrl = manga.id ? `manga-view.html?id=${encodeURIComponent(manga.id)}&title=${encodeURIComponent(manga.title)}` : `manga-view.html?title=${encodeURIComponent(manga.title)}`;
+    return `<a class="filter-result" href="${filterUrl}"><div class="filter-result-cover ${escapeHtml(manga.cover || '')}">${image}</div><div class="filter-result-copy"><strong>${escapeHtml(manga.title)}</strong><p>${escapeHtml(manga.author)} · ${escapeHtml(manga.genre)}</p><small>Created by ${escapeHtml(manga.creatorName || 'MangaShelf')} · ${manga.viewed ? 'Viewed' : 'Unviewed'}</small></div><b class="filter-result-score">${score.toFixed(1)} <small>my score</small><em>${visitorScore === null ? '—' : visitorScore.toFixed(1)} <small>visitors</small></em></b></a>`;
   }).join('') || '<p class="empty-state visible">No manga matches those filters.</p>';
 }
 genreCheckboxes.addEventListener('change', render);
@@ -91,4 +85,13 @@ document.querySelector('#selectAllGenres').addEventListener('click', () => { gen
 document.querySelector('#clearGenres').addEventListener('click', () => { genreCheckboxes.querySelectorAll('input').forEach((input) => { input.checked = false; }); render(); });
 document.querySelector('#clearFilters').addEventListener('click', () => { controls.search.value = ''; genreCheckboxes.querySelectorAll('input').forEach((input) => { input.checked = false; }); controls.category.value = 'all'; controls.score.value = '0'; controls.visitorScore.value = '0'; controls.date.value = 'all'; controls.sort.value = 'score'; controls.direction.value = 'desc'; controls.view.value = 'grid'; controls.viewed.value = 'all'; render(); });
 render();
-MangaAuth.api('/api/manga').then((response) => { allManga = [...sampleManga, ...response.manga]; render(); }).catch((error) => { if (error.message === 'Authentication required.') window.location.replace('login.html?returnTo=filters.html'); });
+fetch('/api/manga')
+  .then((res) => (res.ok ? res.json() : null))
+  .then((response) => {
+    if (response?.manga) {
+      allManga = response.manga;
+      localStorage.setItem('mangaJournalEntries', JSON.stringify(response.manga));
+      render();
+    }
+  })
+  .catch((err) => console.warn('Could not load manga dynamically in filters:', err));

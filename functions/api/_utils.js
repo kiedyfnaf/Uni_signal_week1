@@ -97,13 +97,13 @@ export async function ensureMangaSchema(db) {
     )`).run();
   } catch {}
   try {
-    await db.prepare('ALTER TABLE manga ADD COLUMN link_url TEXT NOT NULL DEFAULT ""').run();
+    await db.prepare("ALTER TABLE manga ADD COLUMN link_url TEXT NOT NULL DEFAULT ''").run();
   } catch {}
   try {
-    await db.prepare('ALTER TABLE manga ADD COLUMN link_description TEXT NOT NULL DEFAULT ""').run();
+    await db.prepare("ALTER TABLE manga ADD COLUMN link_description TEXT NOT NULL DEFAULT ''").run();
   } catch {}
   try {
-    await db.prepare('ALTER TABLE manga ADD COLUMN notes_attachment_json TEXT NOT NULL DEFAULT "{}"').run();
+    await db.prepare("ALTER TABLE manga ADD COLUMN notes_attachment_json TEXT NOT NULL DEFAULT '{}'").run();
   } catch {}
 }
 

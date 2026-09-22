@@ -1,14 +1,15 @@
-import { authErrorResponse, ensureMangaSchema, json, parseManga, readJson, requireAdmin, requireUser } from '../_utils.js';
+import { authErrorResponse, currentUser, ensureMangaSchema, json, parseManga, readJson, requireAdmin } from '../_utils.js';
 
 export async function onRequestGet({ request, env }) {
   try {
     if (!env.DB) return json({ error: 'D1 binding DB is unavailable.' }, 503);
     await ensureMangaSchema(env.DB);
-    const user = await requireUser(request, env);
+    const user = await currentUser(request, env);
+    const userId = user?.id || '';
     const result = await env.DB.prepare(`SELECT manga.*, users.username AS creatorName, COALESCE(manga_views.viewed, 0) AS viewed
-      FROM manga JOIN users ON users.id = manga.creator_id
+      FROM manga LEFT JOIN users ON users.id = manga.creator_id
       LEFT JOIN manga_views ON manga_views.manga_id = manga.id AND manga_views.user_id = ?
-      ORDER BY manga.created_at DESC`).bind(user.id).all();
+      ORDER BY manga.created_at DESC`).bind(userId).all();
     return json({ manga: (result.results || []).map(parseManga) });
   } catch (error) {
     console.error('Error fetching manga list:', error);

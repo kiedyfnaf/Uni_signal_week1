@@ -1,9 +1,34 @@
 const searchInput = document.querySelector('#searchInput');
-let cards = [...document.querySelectorAll('.manga-card')];
 const emptyState = document.querySelector('#emptyState');
+const mangaGrid = document.querySelector('#mangaGrid');
 const adminOnlyElements = [...document.querySelectorAll('.admin-only')];
 const loginElements = [...document.querySelectorAll('.login-button')];
 const logoutButton = document.querySelector('#logoutButton');
+
+let currentMangaList = [];
+let cards = [];
+let showingFavoritesOnly = false;
+
+function getSavedFavorites() {
+  try {
+    return JSON.parse(localStorage.getItem('mangaSavedFavorites') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function setSavedFavorites(list) {
+  localStorage.setItem('mangaSavedFavorites', JSON.stringify(list));
+  updateFavoritesCounters();
+}
+
+function updateFavoritesCounters() {
+  const favorites = getSavedFavorites();
+  const navCount = document.querySelector('#favoritesNavCount');
+  const badge = document.querySelector('#savedCountBadge');
+  if (navCount) navCount.textContent = favorites.length;
+  if (badge) badge.textContent = favorites.length;
+}
 
 async function setupAuthUi() {
   let user = null;
@@ -54,143 +79,212 @@ function getVisitorAverage(title) {
   return ratings.length ? ratings.reduce((sum, score) => sum + score, 0) / ratings.length : null;
 }
 
-function getPersonalAverage(title) {
-  const savedEntry = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]').find((entry) => entry.title === title);
-  const ratings = savedEntry?.ratings?.length ? savedEntry.ratings.map((rating) => rating.score) : getRanking(title).map((rating) => rating.score);
+function getPersonalAverage(entry) {
+  const ratings = entry?.ratings?.length ? entry.ratings.map((rating) => rating.score) : getRanking(entry.title).map((rating) => rating.score);
   const scale = Math.max(...ratings) > 10 ? 20 : 10;
   return ratings.reduce((sum, score) => sum + score, 0) / ratings.length / scale * 10;
 }
 
-function filterManga() {
-  const query = searchInput.value.trim().toLowerCase();
-  let visibleCards = 0;
-  cards.forEach((card) => {
-    const searchableText = `${card.dataset.title} ${card.dataset.author} ${card.dataset.genre}`.toLowerCase();
-    const matches = searchableText.includes(query);
-    card.hidden = !matches;
-    if (matches) visibleCards += 1;
-  });
-  emptyState.style.display = visibleCards ? 'none' : 'block';
-}
-
-searchInput.addEventListener('input', filterManga);
-document.addEventListener('keydown', (event) => {
-  if (event.key === '/' && document.activeElement !== searchInput) {
-    event.preventDefault();
-    searchInput.focus();
-  }
-});
-
-document.querySelectorAll('.save-button').forEach((button) => {
-  button.addEventListener('click', () => {
-    const saved = button.classList.toggle('saved');
-    button.textContent = saved ? '♥' : '♡';
-  });
-});
-
 function escapeHtml(value) {
-  return String(value).replace(/[&<>'"]/g, (character) => ({
+  return String(value || '').replace(/[&<>'"]/g, (character) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
   }[character]));
 }
 
-function loadSavedEntries() {
-  const entries = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
-  const grid = document.querySelector('#mangaGrid');
-  entries.forEach((entry) => {
+function renderMangaList(list) {
+  currentMangaList = list || [];
+  mangaGrid.innerHTML = '';
+  const favorites = getSavedFavorites();
+
+  currentMangaList.forEach((entry) => {
     const card = document.createElement('article');
     card.className = 'manga-card';
     card.dataset.title = entry.title;
     card.dataset.author = entry.author;
     card.dataset.genre = entry.genre;
-      card.dataset.entryId = entry.id;
-    const coverMarkup = entry.coverImage ? `<img class="card-cover-image" src="${entry.coverImage}" alt="${escapeHtml(entry.title)} cover" />` : `<div class="cover ${escapeHtml(entry.cover || 'cover-witch')}"><span class="cover-kicker">MY JOURNAL</span><strong>${escapeHtml(entry.title)}</strong><span class="cover-volume">PERSONAL ENTRY</span></div>`;
-      const average = getPersonalAverage(entry.title);
+    card.dataset.entryId = entry.id;
+
+    const isFavorite = favorites.includes(entry.title) || (entry.id && favorites.includes(entry.id));
+    const average = getPersonalAverage(entry);
     const visitorAverage = getVisitorAverage(entry.title);
-      const combined = visitorAverage === null ? average : (average + visitorAverage) / 2;
-      card.innerHTML = `${coverMarkup}<div class="manga-info"><div><h3>${escapeHtml(entry.title)}</h3><p>${escapeHtml(entry.author)} · ${escapeHtml(entry.genre)}</p><small class="creator-label">Created by ${escapeHtml(entry.creatorName || 'MangaShelf')}</small><div class="score-pair"><span class="score">${average.toFixed(1)} <b>★</b><small>My score</small></span><span class="score visitor-score">${visitorAverage === null ? '—' : visitorAverage.toFixed(1)} <b>★</b><small>Visitors</small></span><span class="score combined-score">${combined.toFixed(1)} <b>★</b><small>Combined</small></span></div></div></div><p class="manga-note">“${escapeHtml(entry.notes.split(/\s+/).slice(0, 18).join(' '))}...”</p><div class="card-meta"><span>${entry.tags.length} tags · ${entry.viewed ? 'viewed' : 'unviewed'}</span><button class="viewed-toggle" type="button" aria-pressed="${entry.viewed}">${entry.viewed ? 'Mark unviewed' : 'Mark viewed'}</button><button class="save-button" aria-label="Save ${escapeHtml(entry.title)}">♡</button></div>`;
-    grid.prepend(card);
+    const combined = visitorAverage === null ? average : (average + visitorAverage) / 2;
+
+    const viewUrl = entry.id
+      ? `manga-view.html?id=${encodeURIComponent(entry.id)}&title=${encodeURIComponent(entry.title || '')}`
+      : `manga-view.html?title=${encodeURIComponent(entry.title || '')}`;
+
+    const coverInner = entry.coverImage
+      ? `<img class="card-cover-image" src="${entry.coverImage}" alt="${escapeHtml(entry.title)} cover" />`
+      : `<div class="cover ${escapeHtml(entry.cover || 'cover-witch')}"><span class="cover-kicker">MANGA JOURNAL</span><strong>${escapeHtml(entry.title)}</strong><span class="cover-volume">${escapeHtml(entry.chapter || 'VOL. 01')}</span></div>`;
+
+    const coverMarkup = `<a class="card-cover-link" href="${viewUrl}" aria-label="View ${escapeHtml(entry.title)}">${coverInner}</a>`;
+
+    const viewedBadge = entry.viewed ? `<span class="viewed-badge">✓ Viewed</span>` : '';
+    const noteSnippet = entry.notes ? escapeHtml(entry.notes.split(/\s+/).slice(0, 16).join(' ')) + '...' : 'Personal journal entry ready to explore.';
+
+    card.innerHTML = `
+      ${coverMarkup}
+      <div class="manga-info">
+        <div>
+          <h3><a class="card-title-link" href="${viewUrl}">${escapeHtml(entry.title)}</a></h3>
+          <p>${escapeHtml(entry.author)} · ${escapeHtml(entry.genre)}</p>
+          <small class="creator-label">Created by ${escapeHtml(entry.creatorName || 'MangaShelf')}</small>
+          <div class="score-pair">
+            <span class="score">${average.toFixed(1)} <b>★</b><small>My score</small></span>
+            <span class="score visitor-score">${visitorAverage === null ? '—' : visitorAverage.toFixed(1)} <b>★</b><small>Visitors</small></span>
+            <span class="score combined-score">${combined.toFixed(1)} <b>★</b><small>Combined</small></span>
+          </div>
+        </div>
+      </div>
+      <p class="manga-note">“${noteSnippet}”</p>
+      <div class="card-meta">
+        <span>${(entry.tags || []).length} tags ${viewedBadge}</span>
+        <button class="save-button ${isFavorite ? 'saved' : ''}" type="button" aria-label="Save ${escapeHtml(entry.title)} to favorites">${isFavorite ? '♥' : '♡'}</button>
+      </div>
+    `;
+
+    // Save button event
     card.querySelector('.save-button').addEventListener('click', (event) => {
-      const button = event.currentTarget;
-      const saved = button.classList.toggle('saved');
-      button.textContent = saved ? '♥' : '♡';
-    });
-    card.querySelector('.viewed-toggle').addEventListener('click', async (event) => {
+      event.preventDefault();
       event.stopPropagation();
-      const viewed = !entry.viewed;
-      await MangaAuth.api(`/api/manga/${encodeURIComponent(entry.id)}/viewed`, { method: 'POST', body: JSON.stringify({ viewed }) });
-      entry.viewed = viewed;
-      event.currentTarget.textContent = viewed ? 'Mark unviewed' : 'Mark viewed';
-      event.currentTarget.setAttribute('aria-pressed', viewed);
+      const favs = getSavedFavorites();
+      const identifier = entry.id || entry.title;
+      const index = favs.indexOf(identifier);
+      const isNowSaved = index === -1;
+      if (isNowSaved) favs.push(identifier);
+      else favs.splice(index, 1);
+      setSavedFavorites(favs);
+      event.currentTarget.classList.toggle('saved', isNowSaved);
+      event.currentTarget.textContent = isNowSaved ? '♥' : '♡';
+      if (showingFavoritesOnly && !isNowSaved) {
+        card.style.display = 'none';
+        filterManga();
+      }
     });
+
+    // Card click opens description view
+    card.addEventListener('click', (event) => {
+      if (event.target.closest('.save-button')) return;
+      if (event.target.closest('a')) return; // natural link navigation handles this
+      window.location.href = viewUrl;
+    });
+
+    mangaGrid.appendChild(card);
   });
-    const storedEntries = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
-    const storedDrafts = JSON.parse(localStorage.getItem('mangaJournalDrafts') || '[]');
-    document.querySelector('#addedMangaCount').textContent = 4 + storedEntries.length;
-    document.querySelector('#listMangaCount').textContent = 4 + storedEntries.length;
-    document.querySelector('#draftCount').textContent = storedDrafts.length;
-    if (storedEntries[0]?.title) document.querySelector('#lastAddedManga').textContent = storedEntries[0].title;
+
   cards = [...document.querySelectorAll('.manga-card')];
+
+  const addedMangaCount = document.querySelector('#addedMangaCount');
+  const lastAddedManga = document.querySelector('#lastAddedManga');
+  const listMangaCount = document.querySelector('#listMangaCount');
+  if (addedMangaCount) addedMangaCount.textContent = currentMangaList.length;
+  if (listMangaCount) listMangaCount.textContent = currentMangaList.length;
+  if (lastAddedManga) lastAddedManga.textContent = currentMangaList[0]?.title || '—';
+
+  updateFavoritesCounters();
+  filterManga();
+  renderRankings();
 }
 
-async function hydrateMangaData(user) {
-  if (!user) return;
-  try {
-    const response = await MangaAuth.api('/api/manga');
-    localStorage.setItem('mangaJournalEntries', JSON.stringify(response.manga));
-    loadSavedEntries();
-    cards = [...document.querySelectorAll('.manga-card')];
-    decorateCardScores();
-    renderRankings();
-  } catch (error) {
-    console.error('Could not load shared manga data.', error);
-  }
-}
+function filterManga() {
+  const query = (searchInput?.value || '').trim().toLowerCase();
+  const favorites = getSavedFavorites();
+  let visibleCards = 0;
 
-setupAuthUi().then(hydrateMangaData);
-
-function decorateCardScores() {
   cards.forEach((card) => {
-    const score = card.querySelector('.score');
-    if (!score || score.parentElement.classList.contains('score-pair')) return;
-    const personal = getPersonalAverage(card.dataset.title);
-    const visitor = getVisitorAverage(card.dataset.title);
-    const pair = document.createElement('div');
-    pair.className = 'score-pair';
-    const combined = visitor === null ? personal : (personal + visitor) / 2;
-    pair.innerHTML = `<span class="score">${personal.toFixed(1)} <b>★</b><small>My score</small></span><span class="score visitor-score">${visitor === null ? '—' : visitor.toFixed(1)} <b>★</b><small>Visitors</small></span><span class="score combined-score">${combined.toFixed(1)} <b>★</b><small>Combined</small></span>`;
-    score.replaceWith(pair);
+    const title = card.dataset.title || '';
+    const id = card.dataset.entryId || '';
+    const searchableText = `${title} ${card.dataset.author || ''} ${card.dataset.genre || ''}`.toLowerCase();
+    const matchesQuery = searchableText.includes(query);
+    const matchesFavorites = !showingFavoritesOnly || favorites.includes(title) || favorites.includes(id);
+    const visible = matchesQuery && matchesFavorites;
+    card.hidden = !visible;
+    if (visible) visibleCards += 1;
   });
+
+  if (emptyState) emptyState.style.display = visibleCards ? 'none' : 'block';
 }
 
-decorateCardScores();
-
-document.querySelectorAll('.manga-card').forEach((card) => {
-  card.addEventListener('click', (event) => {
-    if (event.target.closest('.save-button')) return;
-    const id = card.dataset.entryId ? `?id=${encodeURIComponent(card.dataset.entryId)}` : `?title=${encodeURIComponent(card.dataset.title)}`;
-    window.location.href = `manga-view.html${id}`;
-  });
+searchInput?.addEventListener('input', filterManga);
+document.addEventListener('keydown', (event) => {
+  if (event.key === '/' && document.activeElement !== searchInput) {
+    event.preventDefault();
+    searchInput?.focus();
+  }
 });
 
-const mangaGrid = document.querySelector('#mangaGrid');
+// Favorites filter toggle button & sidebar links
+const filterFavoritesBtn = document.querySelector('#filterFavoritesBtn');
+const filterFavoritesNav = document.querySelector('#filterFavoritesNav');
+const filterAllNav = document.querySelector('#filterAllNav');
+
+function toggleFavoritesFilter(enable) {
+  showingFavoritesOnly = enable !== undefined ? enable : !showingFavoritesOnly;
+  if (filterFavoritesBtn) {
+    filterFavoritesBtn.classList.toggle('active', showingFavoritesOnly);
+    filterFavoritesBtn.setAttribute('aria-pressed', showingFavoritesOnly);
+  }
+  filterManga();
+}
+
+filterFavoritesBtn?.addEventListener('click', () => toggleFavoritesFilter());
+filterFavoritesNav?.addEventListener('click', (event) => {
+  event.preventDefault();
+  toggleFavoritesFilter(true);
+  document.querySelector('#saved')?.scrollIntoView({ behavior: 'smooth' });
+});
+filterAllNav?.addEventListener('click', (event) => {
+  event.preventDefault();
+  toggleFavoritesFilter(false);
+  document.querySelector('#saved')?.scrollIntoView({ behavior: 'smooth' });
+});
+
+async function hydrateMangaData() {
+  try {
+    const response = await fetch('/api/manga').then((res) => {
+      if (!res.ok) throw new Error('API response status ' + res.status);
+      return res.json();
+    });
+    if (response?.manga) {
+      localStorage.setItem('mangaJournalEntries', JSON.stringify(response.manga));
+      renderMangaList(response.manga);
+      return;
+    }
+  } catch (error) {
+    console.warn('Could not fetch /api/manga dynamically, reading local cache:', error);
+  }
+
+  // Fallback to cache
+  const cached = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
+  if (cached.length) renderMangaList(cached);
+}
+
+setupAuthUi();
+hydrateMangaData();
+
+// Collection grid / list view switcher
 const gridView = document.querySelector('#gridView');
 const listView = document.querySelector('#listView');
 function setCollectionView(view) {
-  mangaGrid.classList.toggle('list-view', view === 'list');
-  gridView.classList.toggle('active', view === 'grid');
-  listView.classList.toggle('active', view === 'list');
+  mangaGrid?.classList.toggle('list-view', view === 'list');
+  gridView?.classList.toggle('active', view === 'grid');
+  listView?.classList.toggle('active', view === 'list');
   localStorage.setItem('mangaCollectionView', view);
 }
-gridView.addEventListener('click', () => setCollectionView('grid'));
-listView.addEventListener('click', () => setCollectionView('list'));
+gridView?.addEventListener('click', () => setCollectionView('grid'));
+listView?.addEventListener('click', () => setCollectionView('list'));
 setCollectionView(localStorage.getItem('mangaCollectionView') || 'grid');
 
+// Ranking section filter
 const rankingGrid = document.querySelector('#rankingGrid');
 const scoreFilter = document.querySelector('#scoreFilter');
 const categoryFilter = document.querySelector('#categoryFilter');
-rankingCategories.forEach((category) => categoryFilter.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`));
+if (categoryFilter) {
+  rankingCategories.forEach((category) => categoryFilter.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`));
+}
+
 function renderRankings() {
+  if (!rankingGrid || !scoreFilter || !categoryFilter) return;
   const minimum = Number(scoreFilter.value);
   const category = categoryFilter.value;
   const categoryIndex = rankingCategories.indexOf(category);
@@ -199,10 +293,24 @@ function renderRankings() {
     const scores = getRanking(card.dataset.title);
     const average = scores.reduce((sum, rating) => sum + rating.score, 0) / scores.length;
     return { card, scores, average };
-  }).filter((item) => item.average >= minimum && (category === 'all' || item.scores[categoryIndex].score >= minimum)).sort((a, b) => b.average - a.average);
-  rankingGrid.innerHTML = rankings.map((item) => `<button class="ranking-row" type="button" data-title="${escapeHtml(item.card.dataset.title)}"><strong>${escapeHtml(item.card.dataset.title)}</strong><span>${category === 'all' ? 'Overall average' : escapeHtml(category)}</span><b>${category === 'all' ? item.average.toFixed(1) : item.scores[categoryIndex].score.toFixed(1)}<small>/10</small></b></button>`).join('');
-  rankingGrid.querySelectorAll('.ranking-row').forEach((row) => row.addEventListener('click', () => { window.location.href = `manga-view.html?title=${encodeURIComponent(row.dataset.title)}`; }));
+  }).filter((item) => item.average >= minimum && (category === 'all' || item.scores[categoryIndex]?.score >= minimum)).sort((a, b) => b.average - a.average);
+
+  rankingGrid.innerHTML = rankings.map((item) => `
+    <button class="ranking-row" type="button" data-title="${escapeHtml(item.card.dataset.title)}">
+      <strong>${escapeHtml(item.card.dataset.title)}</strong>
+      <span>${category === 'all' ? 'Overall average' : escapeHtml(category)}</span>
+      <b>${category === 'all' ? item.average.toFixed(1) : (item.scores[categoryIndex]?.score || 0).toFixed(1)}<small>/10</small></b>
+    </button>
+  `).join('');
+
+  rankingGrid.querySelectorAll('.ranking-row').forEach((row) => {
+    row.addEventListener('click', () => {
+      const match = currentMangaList.find((m) => m.title === row.dataset.title);
+      const param = match?.id ? `?id=${encodeURIComponent(match.id)}` : `?title=${encodeURIComponent(row.dataset.title)}`;
+      window.location.href = `manga-view.html${param}`;
+    });
+  });
 }
-scoreFilter.addEventListener('change', renderRankings);
-categoryFilter.addEventListener('change', renderRankings);
-renderRankings();
+
+scoreFilter?.addEventListener('change', renderRankings);
+categoryFilter?.addEventListener('change', renderRankings);

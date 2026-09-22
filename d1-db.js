@@ -138,11 +138,20 @@ export async function createInMemoryD1() {
                 return manga ? { id: manga.id } : null;
               }
 
-              // 4. SELECT manga.*, users.username AS creatorName, COALESCE(manga_views.viewed, 0) AS viewed FROM manga JOIN users ON users.id = manga.creator_id LEFT JOIN manga_views ON manga_views.manga_id = manga.id AND manga_views.user_id = ? WHERE manga.id = ?
+              // 4. SELECT manga.*, users.username AS creatorName, COALESCE(manga_views.viewed, 0) AS viewed FROM manga LEFT JOIN users ON users.id = manga.creator_id LEFT JOIN manga_views ON manga_views.manga_id = manga.id AND manga_views.user_id = ? WHERE manga.id = ? ...
               if (normalizedSql.includes('WHERE manga.id = ?')) {
                 const userId = args[0];
                 const mangaId = args[1];
-                const manga = mangas.get(mangaId);
+                let manga = mangas.get(mangaId);
+                if (!manga) {
+                  const targetLower = String(mangaId).toLowerCase();
+                  for (const item of mangas.values()) {
+                    if (item.id === mangaId || item.title.toLowerCase() === targetLower) {
+                      manga = item;
+                      break;
+                    }
+                  }
+                }
                 if (!manga) return null;
                 const creator = users.get(manga.creator_id);
                 const view = mangaViews.get(`${userId}:${manga.id}`);
@@ -157,8 +166,8 @@ export async function createInMemoryD1() {
             },
 
             async all() {
-              // 1. SELECT manga.*, users.username AS creatorName, COALESCE(manga_views.viewed, 0) AS viewed FROM manga JOIN users ON users.id = manga.creator_id LEFT JOIN manga_views ON manga_views.manga_id = manga.id AND manga_views.user_id = ? ORDER BY manga.created_at DESC
-              if (normalizedSql.includes('FROM manga JOIN users')) {
+              // 1. SELECT manga.*, users.username AS creatorName, COALESCE(manga_views.viewed, 0) AS viewed FROM manga ...
+              if (normalizedSql.includes('FROM manga JOIN users') || normalizedSql.includes('FROM manga LEFT JOIN users')) {
                 const userId = args[0];
                 const results = [];
                 for (const manga of mangas.values()) {

@@ -33,7 +33,8 @@
         <div class="sidebar-divider"></div>
         <p class="eyebrow">My lists</p>
         <nav class="list-nav" aria-label="My lists">
-          <a href="#saved"><span class="list-dot coral"></span>All manga <small id="listMangaCount">0</small></a>
+          <a href="#saved" id="filterAllNav"><span class="list-dot coral"></span>All manga <small id="listMangaCount">0</small></a>
+          <a href="#saved" id="filterFavoritesNav"><span class="list-dot lilac"></span>Saved favorites <small id="favoritesNavCount">0</small></a>
           <a href="#rankings"><span class="list-dot mint"></span>Top rated <small>20</small></a>
           <a class="admin-only" href="manga-editor.html"><span class="list-dot lilac"></span>Add manga <small>＋</small></a>
         </nav>
@@ -50,33 +51,20 @@
         </header>
 
         <section class="welcome-row" id="explore">
-          <div><p class="eyebrow">Thursday, September 19</p><h1>My manga journal<span>.</span></h1><p class="subheading">Personal notes on the stories I am reading and loving.</p></div>
+          <div><p class="eyebrow">MangaCave Journal</p><h1>My manga journal<span>.</span></h1><p class="subheading">Personal notes on the stories I am reading and loving.</p></div>
           <div class="welcome-actions"><a class="button button-dark admin-only" href="manga-editor.html"><span>✎</span> Add manga</a><a class="button login-button" href="login.html">Log in</a></div>
         </section>
 
         <section class="metric-strip" aria-label="Journal summary">
-          <div><span>ADDED MANGA</span><strong id="addedMangaCount">4</strong></div>
-          <div><span>LAST ADDED</span><strong id="lastAddedManga">Witch Hat Atelier</strong></div>
+          <div><span>ADDED MANGA</span><strong id="addedMangaCount">0</strong></div>
+          <div><span>LAST ADDED</span><strong id="lastAddedManga">—</strong></div>
           <div><span>RANKED CATEGORIES</span><strong>20</strong></div>
           <a class="metric-history" href="history.html"><span>CHANGES &amp; PUBLISHES</span><strong>View history →</strong></a>
         </section>
 
         <section class="section-block" id="saved">
-          <div class="section-heading"><div><p class="eyebrow">From my bookshelf</p><h2>Stories I’m reading</h2></div><div class="section-actions"><button class="view-toggle active" id="gridView" type="button" aria-label="Grid view">▦</button><button class="view-toggle" id="listView" type="button" aria-label="List view">☷</button><a href="filters.html" class="text-link">Filters <span>→</span></a></div></div>
-          <div class="manga-grid" id="mangaGrid">
-            <article class="manga-card" data-title="Dandadan" data-author="Yukinobu Tatsu" data-genre="Action / Supernatural">
-              <div class="cover cover-dandadan"><span class="cover-kicker">集英社</span><strong>DANDADAN</strong><span class="cover-volume">VOL. 04</span></div><div class="manga-info"><div><h3>Dandadan</h3><p>Yukinobu Tatsu · Action / Supernatural</p></div><span class="score">4.8 <b>★</b></span></div><p class="manga-note">“Chaotic, funny, and impossible to put down.”</p><div class="card-meta"><span>My notes · 4 min read</span><button class="save-button" aria-label="Save Dandadan">♡</button></div>
-            </article>
-            <article class="manga-card" data-title="Blue Period" data-author="Tsubasa Yamaguchi" data-genre="Drama / Arte">
-              <div class="cover cover-blue"><span class="cover-kicker">講談社</span><strong>BLUE<br />PERIOD</strong><span class="cover-volume">VOL. 08</span></div><div class="manga-info"><div><h3>Blue Period</h3><p>Tsubasa Yamaguchi · Drama / Art</p></div><span class="score">4.7 <b>★</b></span></div><p class="manga-note">“A quiet story about finding a language for feeling.”</p><div class="card-meta"><span>My notes · 6 min read</span><button class="save-button" aria-label="Save Blue Period">♡</button></div>
-            </article>
-            <article class="manga-card" data-title="Frieren" data-author="Kanehito Yamada" data-genre="Fantasy / Adventure">
-              <div class="cover cover-frieren"><span class="cover-kicker">小学館</span><strong>葬送の<br />フリーレン</strong><span class="cover-volume">VOL. 06</span></div><div class="manga-info"><div><h3>Frieren</h3><p>Kanehito Yamada · Fantasy / Adventure</p></div><span class="score">4.9 <b>★</b></span></div><p class="manga-note">“A tender reminder that time gives small moments their weight.”</p><div class="card-meta"><span>My notes · 5 min read</span><button class="save-button" aria-label="Save Frieren">♡</button></div>
-            </article>
-            <article class="manga-card" data-title="Witch Hat Atelier" data-author="Kamome Shirahama" data-genre="Fantasy / Magic">
-              <div class="cover cover-witch"><span class="cover-kicker">講談社</span><strong>WITCH HAT<br />ATELIER</strong><span class="cover-volume">VOL. 12</span></div><div class="manga-info"><div><h3>Witch Hat Atelier</h3><p>Kamome Shirahama · Fantasy / Magic</p></div><span class="score">4.9 <b>★</b></span></div><p class="manga-note">“Every page feels like opening a secret door into another world.”</p><div class="card-meta"><span>My notes · 7 min read</span><button class="save-button" aria-label="Save Witch Hat Atelier">♡</button></div>
-            </article>
-          </div>
+          <div class="section-heading"><div><p class="eyebrow">From my bookshelf</p><h2>Stories I’m reading</h2></div><div class="section-actions"><button class="view-toggle" id="filterFavoritesBtn" type="button" aria-pressed="false" title="Show saved favorites">♥ Saved (<span id="savedCountBadge">0</span>)</button><button class="view-toggle active" id="gridView" type="button" aria-label="Grid view">▦</button><button class="view-toggle" id="listView" type="button" aria-label="List view">☷</button><a href="filters.html" class="text-link">Filters <span>→</span></a></div></div>
+          <div class="manga-grid" id="mangaGrid"></div>
           <p class="empty-state" id="emptyState">No manga found for that search.</p>
         </section>
 

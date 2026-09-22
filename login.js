@@ -17,6 +17,8 @@ function renderMode() {
   authDescription.textContent = registerMode ? 'Create a view-only account. Approved usernames become administrators.' : 'Sign in to read the manga shelf. Administrators can also add manga.';
   authSubmit.textContent = registerMode ? 'Create account' : 'Sign in';
   confirmPasswordField.hidden = !registerMode;
+  confirmPasswordField.style.display = registerMode ? 'grid' : 'none';
+  confirmPasswordField.classList.toggle('is-hidden', !registerMode);
   confirmPasswordField.querySelector('input').disabled = !registerMode;
   document.querySelector('#confirmPassword').required = registerMode;
   document.querySelector('#password').autocomplete = registerMode ? 'new-password' : 'current-password';

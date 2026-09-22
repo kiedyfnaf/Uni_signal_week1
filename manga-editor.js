@@ -242,9 +242,29 @@ form.addEventListener('submit', async (event) => {
   if (saveMode === 'entry') {
     saveStatus.textContent = 'Saving manga...';
     try {
-      await MangaAuth.api('/api/manga', { method: 'POST', body: JSON.stringify({ ...entry, linkUrl: entry.linkUrl, linkDescription: entry.linkDescription }) });
+      const response = await MangaAuth.api('/api/manga', { method: 'POST', body: JSON.stringify({ ...entry, linkUrl: entry.linkUrl, linkDescription: entry.linkDescription }) });
+      const createdManga = response?.manga;
+      const finalId = createdManga?.id || entry.id;
+      const fullEntry = {
+        ...entry,
+        id: finalId,
+        creatorName: createdManga?.creatorName || 'admin',
+        viewed: false,
+      };
+      // Keep local entries cache fresh
+      const cached = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
+      const filtered = cached.filter((item) => item.id !== finalId && item.title.toLowerCase() !== fullEntry.title.toLowerCase());
+      filtered.unshift(fullEntry);
+      localStorage.setItem('mangaJournalEntries', JSON.stringify(filtered));
+
+      // If this was saved from draft, clean up draft
+      if (draftId) {
+        const drafts = JSON.parse(localStorage.getItem('mangaJournalDrafts') || '[]');
+        localStorage.setItem('mangaJournalDrafts', JSON.stringify(drafts.filter((d) => d.id !== draftId)));
+      }
+
       saveStatus.textContent = 'Entry saved. Returning to your journal...';
-      window.setTimeout(() => { window.location.href = 'index.html'; }, 500);
+      window.setTimeout(() => { window.location.href = 'index.html'; }, 400);
     } catch (error) {
       saveStatus.textContent = error.message;
     }
