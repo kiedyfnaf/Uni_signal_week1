@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS manga (
   chapter TEXT NOT NULL DEFAULT '',
   tags_json TEXT NOT NULL DEFAULT '[]',
   notes TEXT NOT NULL DEFAULT '',
+  notes_attachment_json TEXT NOT NULL DEFAULT '{}',
   cover_image TEXT NOT NULL DEFAULT '',
   panel_images_json TEXT NOT NULL DEFAULT '[]',
   ratings_json TEXT NOT NULL DEFAULT '[]',

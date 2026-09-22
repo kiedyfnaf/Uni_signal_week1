@@ -10,13 +10,28 @@ const tagsValue = document.querySelector('#tagsValue');
 const saveStatus = document.querySelector('#saveStatus');
 const coverImage = document.querySelector('#coverImage');
 const panelImages = document.querySelector('#panelImages');
+const notesAttachment = document.querySelector('#notesAttachment');
+const notesAttachmentPreview = document.querySelector('#notesAttachmentPreview');
 const coverPreview = document.querySelector('#coverPreview');
 const panelPreview = document.querySelector('#panelPreview');
 const genreSelect = document.querySelector('#genreSelect');
 let coverImageData = '';
 let panelImageData = [];
-const rankingCategories = ['Visual style', 'Main cast', 'Supporting cast', 'Character depth', 'Character chemistry', 'Plot', 'Pacing', 'World-building', 'Dialogue', 'Humor', 'Drama', 'Emotional impact', 'Themes', 'Originality', 'Panel composition', 'Action', 'Romance', 'Atmosphere', 'Ending', 'Reread value'];
+const ratingGroups = {
+  'Visual style': ['Originality', 'Detail', 'Clothes', 'Facial expressions', 'Panel composition'],
+  'Action': ['Fighting movement', 'Choreography', 'Impact', 'Clarity', 'Tension'],
+  'Main cast': ['Protagonist', 'Character depth', 'Character arc', 'Motivation', 'Memorability'],
+  'Supporting cast': ['Variety', 'Chemistry', 'Character depth', 'Relationships', 'Memorability'],
+  'Story': ['Plot', 'Pacing', 'Dialogue', 'Structure', 'Ending'],
+  'World': ['World-building', 'Setting detail', 'Internal logic', 'Atmosphere', 'Immersion'],
+  'Emotion': ['Drama', 'Humor', 'Romance', 'Emotional impact', 'Themes'],
+  'Craft': ['Panel flow', 'Composition', 'Use of space', 'Visual storytelling', 'Consistency'],
+  'Experience': ['Reread value', 'Surprise', 'Accessibility', 'Balance', 'Enjoyment'],
+  'Identity': ['Originality', 'Tone', 'Voice', 'Ambition', 'Lasting impression'],
+};
+const ratingCategories = Object.entries(ratingGroups).flatMap(([group, categories]) => categories.map((category) => ({ group, category })));
 const draftId = new URLSearchParams(window.location.search).get('draft');
+let notesAttachmentData = {};
 
 form.addEventListener('invalid', () => {
   saveStatus.textContent = 'Complete the required title, author, and notes fields before saving the manga entry.';
@@ -57,6 +72,26 @@ function readImage(file) {
   });
 }
 
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => resolve({ name: file.name, type: file.type || 'application/octet-stream', data: reader.result }));
+    reader.addEventListener('error', reject);
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderNotesAttachment() {
+  notesAttachmentPreview.innerHTML = notesAttachmentData.data
+    ? `<span>${notesAttachmentData.name}</span><button type="button" id="removeNotesAttachment" aria-label="Remove notes attachment">×</button>`
+    : '';
+  document.querySelector('#removeNotesAttachment')?.addEventListener('click', () => {
+    notesAttachmentData = {};
+    notesAttachment.value = '';
+    renderNotesAttachment();
+  });
+}
+
 function renderImagePreviews() {
   coverPreview.innerHTML = coverImageData ? `<img src="${coverImageData}" alt="Selected front cover preview" />` : '';
   panelPreview.innerHTML = panelImageData.map((image, index) => `<div class="panel-thumb"><img src="${image}" alt="Selected manga panel ${index + 1}" /><button type="button" data-panel-index="${index}" aria-label="Remove panel ${index + 1}">×</button></div>`).join('');
@@ -70,19 +105,34 @@ function renderImagePreviews() {
 
 function addRatingRows() {
   const ratingList = document.querySelector('#ratingList');
-  rankingCategories.forEach((category) => {
-    const row = document.createElement('label');
-    row.className = 'rating-row';
-    row.innerHTML = `<span>${category}</span><input class="rating-number" data-category="${category}" type="number" min="0" max="10" step="0.1" value="0" aria-label="${category} score" /><small>/ 10</small>`;
-    row.querySelector('input').addEventListener('input', updateRatingTotal);
-    ratingList.append(row);
+  Object.entries(ratingGroups).forEach(([group, categories], groupIndex) => {
+    const section = document.createElement('details');
+    section.className = 'rating-group';
+    section.open = groupIndex === 0;
+    section.innerHTML = `<summary><span>${group}</span><strong>0 / 100</strong></summary><div class="rating-group-rows"></div>`;
+    const rows = section.querySelector('.rating-group-rows');
+    categories.forEach((category) => {
+      const key = `${group}: ${category}`;
+      const row = document.createElement('label');
+      row.className = 'rating-row';
+      row.innerHTML = `<span>${category}</span><input class="rating-number" data-group="${group}" data-category="${key}" type="number" min="0" max="20" step="1" value="0" aria-label="${key} score" /><small>/ 20</small>`;
+      row.querySelector('input').addEventListener('input', () => { updateRatingTotal(); updateGroupTotal(section); });
+      rows.append(row);
+    });
+    ratingList.append(section);
   });
+}
+
+function updateGroupTotal(section) {
+  const total = [...section.querySelectorAll('.rating-number')].reduce((sum, input) => sum + Number(input.value), 0);
+  section.querySelector('summary strong').textContent = `${total} / 100`;
 }
 
 function updateRatingTotal() {
   const values = [...document.querySelectorAll('.rating-number')].map((input) => Number(input.value));
-  const average = values.reduce((sum, value) => sum + value, 0) / values.length;
-  document.querySelector('#ratingTotal').textContent = `${average.toFixed(1)} / 10`;
+  const total = values.reduce((sum, value) => sum + value, 0);
+  document.querySelector('#ratingTotal').textContent = `${total} / 1000`;
+  document.querySelectorAll('.rating-group').forEach(updateGroupTotal);
 }
 
 function restoreDraft() {
@@ -100,7 +150,9 @@ function restoreDraft() {
   (draft.tags || []).forEach(addTag);
   coverImageData = draft.coverImage || '';
   panelImageData = draft.panelImages || [];
+  notesAttachmentData = draft.notesAttachment || {};
   renderImagePreviews();
+  renderNotesAttachment();
   (draft.ratings || []).forEach((rating) => {
     const input = document.querySelector(`.rating-number[data-category="${CSS.escape(rating.category)}"]`);
     if (input) input.value = rating.score;
@@ -127,12 +179,23 @@ panelImages.addEventListener('change', async () => {
   renderImagePreviews();
   panelImages.value = '';
 });
+notesAttachment.addEventListener('change', async () => {
+  const file = notesAttachment.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    saveStatus.textContent = 'The notes attachment must be 5 MB or smaller.';
+    notesAttachment.value = '';
+    return;
+  }
+  notesAttachmentData = await readFile(file);
+  renderNotesAttachment();
+});
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   const data = new FormData(form);
   const saveMode = event.submitter?.value || 'entry';
-  const ratings = [...document.querySelectorAll('.rating-number')].map((input) => ({ category: input.dataset.category, score: Number(input.value) }));
+  const ratings = [...document.querySelectorAll('.rating-number')].map((input) => ({ group: input.dataset.group, category: input.dataset.category, score: Number(input.value) }));
   const entry = {
     id: draftId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
     title: data.get('title').trim(),
@@ -144,6 +207,7 @@ form.addEventListener('submit', async (event) => {
     chapter: data.get('chapter').trim(),
     tags: JSON.parse(tagsValue.value || '[]'),
     notes: data.get('notes'),
+    notesAttachment: notesAttachmentData,
     coverImage: coverImageData,
     panelImages: panelImageData,
     ratings,

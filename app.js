@@ -57,7 +57,8 @@ function getVisitorAverage(title) {
 function getPersonalAverage(title) {
   const savedEntry = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]').find((entry) => entry.title === title);
   const ratings = savedEntry?.ratings?.length ? savedEntry.ratings.map((rating) => rating.score) : getRanking(title).map((rating) => rating.score);
-  return ratings.reduce((sum, score) => sum + score, 0) / ratings.length;
+  const scale = Math.max(...ratings) > 10 ? 20 : 10;
+  return ratings.reduce((sum, score) => sum + score, 0) / ratings.length / scale * 10;
 }
 
 function filterManga() {

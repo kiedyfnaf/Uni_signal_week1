@@ -34,8 +34,8 @@
             <div class="detail-grid">
               <label>Title<input name="title" required placeholder="e.g. Nausicaä of the Valley of the Wind" /></label>
               <label>Author<input name="author" required placeholder="e.g. Hayao Miyazaki" /></label>
-              <label>Genres <span class="field-hint">Choose one or more</span><select name="genres" id="genreSelect" multiple size="5"><option>Action</option><option>Adventure</option><option>Comedy</option><option>Drama</option><option>Fantasy</option><option>Horror</option><option>Mystery</option><option>Romance</option><option>Science fiction</option><option>Slice of life</option><option>Sports</option><option>Supernatural</option></select></label>
-              <label>Cover color<select class="cover-color-select" name="cover"><option value="cover-witch">Terracotta</option><option value="cover-dandadan">Coral</option><option value="cover-blue">Ocean blue</option><option value="cover-frieren">Forest green</option></select></label>
+              <label>Genres <span class="field-hint">Choose one or more</span><select name="genres" id="genreSelect" multiple size="7"><option>Action</option><option>Adventure</option><option>Comedy</option><option>Drama</option><option>Fantasy</option><option>Horror</option><option>Mystery</option><option>Romance</option><option>Science fiction</option><option>Slice of life</option><option>Sports</option><option>Supernatural</option><option>Psychological</option><option>Historical</option><option>Thriller</option><option>Mecha</option><option>Music</option><option>Medical</option><option>School life</option><option>Seinen</option><option>Shoujo</option><option>Josei</option><option>Shounen</option><option>Iyashikei</option></select></label>
+              <label>Cover color<select class="cover-color-select" name="cover"><option value="cover-witch">Terracotta</option><option value="cover-dandadan">Coral</option><option value="cover-blue">Ocean blue</option><option value="cover-frieren">Forest green</option><option value="cover-lilac">Lilac</option><option value="cover-mint">Mint</option><option value="cover-yellow">Sunflower</option><option value="cover-ink">Ink</option><option value="cover-rose">Rose</option></select></label>
             </div>
             <label>Review written at <span class="field-hint">Chapter or volume</span><input name="chapter" placeholder="e.g. Chapter 42 or Volume 3" /></label>
             <div class="link-fields"><label>Reading / reference link<input name="linkUrl" type="url" placeholder="https://example.com/manga" /></label><label>Link description<input name="linkDescription" placeholder="Official reader, ranking, interview..." /></label></div>
@@ -56,13 +56,15 @@
             <div class="panel-heading"><div><p class="eyebrow">The long read</p><h2>My notes</h2></div><span class="word-count" id="wordCount">0 words</span></div>
             <textarea id="notes" name="notes" required placeholder="Start writing your thoughts about this manga...&#10;&#10;There is no small limit here. Add a scene-by-scene reading log, character notes, themes, favorite panels, reread thoughts, spoilers, or anything else you want to remember."></textarea>
             <p class="field-hint">No word limit. Your browser will keep this draft locally until you save it.</p>
+            <label>Attach notes <span class="field-hint">PDF or TXT, one file</span><input id="notesAttachment" type="file" accept="application/pdf,text/plain,.pdf,.txt" /></label>
+            <div id="notesAttachmentPreview" class="notes-attachment-preview" aria-live="polite"></div>
           </div>
         </section>
 
         <aside class="editor-sidebar">
           <section class="editor-panel ratings-panel">
-            <div class="panel-heading"><div><p class="eyebrow">Public ranking</p><h2>20 manga ratings</h2></div><span class="rating-total" id="ratingTotal">— / 10</span></div>
-            <p class="panel-copy">Set every category while writing. The category names are fixed in code, so you can edit the framework later without changing each entry.</p>
+            <div class="panel-heading"><div><p class="eyebrow">Public ranking</p><h2>50 category ratings</h2></div><span class="rating-total" id="ratingTotal">— / 1000</span></div>
+            <p class="panel-copy">Open a group to score its five criteria. Each criterion is worth 0–20 points, for a total of 1000.</p>
             <div id="ratingList" class="rating-list"></div>
           </section>
           <section class="editor-panel save-panel">

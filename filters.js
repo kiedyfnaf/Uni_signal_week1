@@ -37,7 +37,7 @@ document.querySelector('#closeSettings').addEventListener('click', () => setting
 settingsDialog.addEventListener('click', (event) => { if (event.target === settingsDialog) settingsDialog.close(); });
 themeSelect.addEventListener('change', () => applyTheme(themeSelect.value));
 applyTheme(localStorage.getItem('mangaShelfTheme') || 'current');
-function scoresFor(manga) { return manga.ratings?.length ? categories.map((category) => manga.ratings.find((rating) => rating.category === category)?.score ?? 0) : rankingScores[manga.title] || categories.map((_, index) => Number((7 + ((index * 7) % 29) / 10).toFixed(1))); }
+function scoresFor(manga) { return manga.ratings?.length ? categories.map((category) => { const score = manga.ratings.find((rating) => rating.category === category)?.score ?? 0; return score > 10 ? score / 2 : score; }) : rankingScores[manga.title] || categories.map((_, index) => Number((7 + ((index * 7) % 29) / 10).toFixed(1))); }
 function averageFor(manga) { return scoresFor(manga).reduce((sum, score) => sum + score, 0) / categories.length; }
 function visitorAverageFor(manga) { const ratings = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}')[manga.title]?.ratings || []; return ratings.length ? ratings.reduce((sum, score) => sum + score, 0) / ratings.length : null; }
 function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])); }

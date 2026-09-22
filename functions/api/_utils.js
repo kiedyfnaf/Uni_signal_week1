@@ -100,5 +100,5 @@ export function adminNames(env) {
 }
 
 export function parseManga(row) {
-  return { ...row, tags: JSON.parse(row.tags_json || '[]'), panelImages: JSON.parse(row.panel_images_json || '[]'), ratings: JSON.parse(row.ratings_json || '[]'), viewed: Boolean(row.viewed), tags_json: undefined, panel_images_json: undefined, ratings_json: undefined };
+  return { ...row, tags: JSON.parse(row.tags_json || '[]'), panelImages: JSON.parse(row.panel_images_json || '[]'), ratings: JSON.parse(row.ratings_json || '[]'), notesAttachment: JSON.parse(row.notes_attachment_json || '{}'), viewed: Boolean(row.viewed), tags_json: undefined, notes_attachment_json: undefined, panel_images_json: undefined, ratings_json: undefined };
 }
