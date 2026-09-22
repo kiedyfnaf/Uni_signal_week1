@@ -45,9 +45,11 @@ async function setupAuthUi() {
   const profileRole = document.querySelector('#profileRole');
   const profileAvatar = document.querySelector('#profileAvatar');
   const viewModeLabel = document.querySelector('#viewModeLabel');
+  const avatarButton = document.querySelector('#button_avatar');
   if (profileName) profileName.textContent = user?.username || 'MangaCave';
   if (profileRole) profileRole.textContent = user ? (isAdmin ? 'Administrator' : 'Reader') : 'Shared journal';
-  if (profileAvatar) profileAvatar.textContent = user ? user.username.slice(0, 2).toUpperCase() : 'MC';
+  if (profileAvatar) profileAvatar.textContent = user ? user.username.slice(0, 2).toUpperCase() : 'USER';
+  if (avatarButton) avatarButton.textContent = user ? user.username.slice(0, 2).toUpperCase() : 'USER';
   if (viewModeLabel) viewModeLabel.textContent = isAdmin ? 'Admin view' : 'Read-only view';
   return user;
 }
