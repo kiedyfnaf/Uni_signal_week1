@@ -62,9 +62,15 @@ export async function currentUser(request, env) {
   const token = cookieValue(request);
   if (!token) return null;
   const tokenHash = await sha256(token);
-  return env.DB.prepare(`SELECT users.id, users.username, users.role
+  const row = await env.DB.prepare(`SELECT users.id AS id, users.username AS username, users.role AS role
     FROM sessions JOIN users ON users.id = sessions.user_id
     WHERE sessions.token_hash = ? AND sessions.expires_at > datetime('now')`).bind(tokenHash).first();
+  if (!row) return null;
+  return {
+    id: row.id || row['users.id'],
+    username: row.username || row['users.username'],
+    role: row.role || row['users.role'],
+  };
 }
 
 export async function requireUser(request, env) {
@@ -79,10 +85,32 @@ export async function requireAdmin(request, env) {
   return user;
 }
 
+export async function ensureMangaSchema(db) {
+  if (!db || !db.prepare) return;
+  try {
+    await db.prepare(`CREATE TABLE IF NOT EXISTS manga_views (
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      manga_id TEXT NOT NULL REFERENCES manga(id) ON DELETE CASCADE,
+      viewed INTEGER NOT NULL DEFAULT 0,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (user_id, manga_id)
+    )`).run();
+  } catch {}
+  try {
+    await db.prepare('ALTER TABLE manga ADD COLUMN link_url TEXT NOT NULL DEFAULT ""').run();
+  } catch {}
+  try {
+    await db.prepare('ALTER TABLE manga ADD COLUMN link_description TEXT NOT NULL DEFAULT ""').run();
+  } catch {}
+  try {
+    await db.prepare('ALTER TABLE manga ADD COLUMN notes_attachment_json TEXT NOT NULL DEFAULT "{}"').run();
+  } catch {}
+}
+
 export async function createSession(userId, env) {
   const token = randomHex();
   const tokenHash = await sha256(token);
-  const sessionId = crypto.randomUUID();
+  const sessionId = typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : randomHex(16);
   await env.DB.prepare(`INSERT INTO sessions (id, user_id, token_hash, expires_at) VALUES (?, ?, ?, datetime('now', '+30 days'))`).bind(sessionId, userId, tokenHash).run();
   return { name: SESSION_COOKIE, value: token };
 }
@@ -100,5 +128,28 @@ export function adminNames(env) {
 }
 
 export function parseManga(row) {
-  return { ...row, tags: JSON.parse(row.tags_json || '[]'), panelImages: JSON.parse(row.panel_images_json || '[]'), ratings: JSON.parse(row.ratings_json || '[]'), notesAttachment: JSON.parse(row.notes_attachment_json || '{}'), viewed: Boolean(row.viewed), tags_json: undefined, notes_attachment_json: undefined, panel_images_json: undefined, ratings_json: undefined };
+  let tags = [];
+  try { tags = typeof row.tags_json === 'string' ? JSON.parse(row.tags_json || '[]') : (row.tags || []); } catch {}
+  let panelImages = [];
+  try { panelImages = typeof row.panel_images_json === 'string' ? JSON.parse(row.panel_images_json || '[]') : (row.panelImages || []); } catch {}
+  let ratings = [];
+  try { ratings = typeof row.ratings_json === 'string' ? JSON.parse(row.ratings_json || '[]') : (row.ratings || []); } catch {}
+  let notesAttachment = {};
+  try { notesAttachment = typeof row.notes_attachment_json === 'string' ? JSON.parse(row.notes_attachment_json || '{}') : (row.notesAttachment || {}); } catch {}
+
+  return {
+    ...row,
+    id: row.id || row['manga.id'],
+    title: row.title || row['manga.title'] || '',
+    author: row.author || row['manga.author'] || '',
+    tags,
+    panelImages,
+    ratings,
+    notesAttachment,
+    viewed: Boolean(row.viewed),
+    tags_json: undefined,
+    notes_attachment_json: undefined,
+    panel_images_json: undefined,
+    ratings_json: undefined,
+  };
 }

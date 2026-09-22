@@ -1,0 +1,6 @@
+{
+  "name": "MangaShelf",
+  "description": "A personal manga journal for tracking notes, lists, ratings, and filters.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

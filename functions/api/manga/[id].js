@@ -1,11 +1,20 @@
-import { json, parseManga, requireUser } from '../_utils.js';
+import { authErrorResponse, ensureMangaSchema, json, parseManga, requireUser } from '../_utils.js';
 
 export async function onRequestGet({ request, env, params }) {
-  const user = await requireUser(request, env);
-  const row = await env.DB.prepare(`SELECT manga.*, users.username AS creatorName, COALESCE(manga_views.viewed, 0) AS viewed
+  try {
+    if (!env.DB) return json({ error: 'D1 binding DB is unavailable.' }, 503);
+    await ensureMangaSchema(env.DB);
+    const user = await requireUser(request, env);
+    const row = await env.DB.prepare(`SELECT manga.*, users.username AS creatorName, COALESCE(manga_views.viewed, 0) AS viewed
     FROM manga JOIN users ON users.id = manga.creator_id
     LEFT JOIN manga_views ON manga_views.manga_id = manga.id AND manga_views.user_id = ?
     WHERE manga.id = ?`).bind(user.id, params.id).first();
-  if (!row) return json({ error: 'Manga not found.' }, 404);
-  return json({ manga: parseManga(row) });
+    if (!row) return json({ error: 'Manga not found.' }, 404);
+    return json({ manga: parseManga(row) });
+  } catch (error) {
+    console.error('Error loading manga:', error);
+    const response = authErrorResponse(error);
+    if (response) return response;
+    return json({ error: error.message || 'Could not load manga.' }, 500);
+  }
 }
