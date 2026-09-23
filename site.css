@@ -474,7 +474,7 @@ input, select, textarea {
   font-size: 11px !important;
   font-weight: 800 !important;
   background: #ecbca6 !important;
-  color: #f10606 !important;
+  color: #000000 !important;
   box-sizing: border-box !important;
 }
 #button_avatar {
