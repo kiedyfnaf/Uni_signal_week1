@@ -123,9 +123,9 @@ async function initView() {
     }
   }
 
-  if (entry && entry.title) {
+  if (requestedTitle && requestedId) {
     // This will format the tab as "Naruto - MangaCave"
-    document.title = `${entry.title} - MangaCave`; 
+    document.title = `${requestedTitle} - MangaCave`; 
   } else {
     // Fallback if the manga isn't found
     document.title = 'Manga Not Found - MangaCave';
