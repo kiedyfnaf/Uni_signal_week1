@@ -48,8 +48,8 @@ async function setupAuthUi() {
   const avatarButton = document.querySelector('#button_avatar');
   if (profileName) profileName.textContent = user?.username || 'MangaCave';
   if (profileRole) profileRole.textContent = user ? (isAdmin ? 'Administrator' : 'Reader') : 'Shared journal';
-  if (profileAvatar) profileAvatar.textContent = user ? user.username.slice(0, 2).toUpperCase() : 'USER';
-  if (avatarButton) avatarButton.textContent = user ? user.username.slice(0, 2).toUpperCase() : 'USER';
+  if (profileAvatar) profileAvatar.textContent = user ? user.username.slice(0, 2).toUpperCase() : 'MC';
+  if (avatarButton) avatarButton.textContent = user ? user.username.slice(0, 2).toUpperCase() : 'MC';
   if (viewModeLabel) viewModeLabel.textContent = isAdmin ? 'Admin view' : 'Read-only view';
   return user;
 }
@@ -168,8 +168,9 @@ function renderMangaList(list) {
       ? `manga-view.html?id=${encodeURIComponent(entry.id)}&title=${encodeURIComponent(entry.title || '')}`
       : `manga-view.html?title=${encodeURIComponent(entry.title || '')}`;
 
-    const coverInner = entry.coverImage
-      ? `<img class="card-cover-image" src="${entry.coverImage}" alt="${escapeHtml(entry.title)} cover" />`
+    const imageSrc = entry.coverImage || entry.cover_image;
+    const coverInner = imageSrc
+      ? `<img class="card-cover-image" src="${escapeHtml(imageSrc)}" alt="${escapeHtml(entry.title)} cover" />`
       : `<div class="cover ${escapeHtml(entry.cover || 'cover-witch')}"><span class="cover-kicker">MANGA JOURNAL</span><strong>${escapeHtml(entry.title)}</strong><span class="cover-volume">${escapeHtml(entry.chapter || 'VOL. 01')}</span></div>`;
 
     const coverMarkup = `<a class="card-cover-link" href="${viewUrl}" aria-label="View ${escapeHtml(entry.title)}">${coverInner}</a>`;

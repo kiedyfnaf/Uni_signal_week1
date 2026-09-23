@@ -101,11 +101,13 @@ export async function createInMemoryD1() {
     prepare(sql) {
       const normalizedSql = sql.trim().replace(/\s+/g, ' ');
 
-      return {
-        bind(...args) {
-          return {
-            async first() {
-              // 1. SELECT id, username, role, password_hash FROM users WHERE username = ? COLLATE NOCASE
+      function createStatement(args = []) {
+        return {
+          bind(...newArgs) {
+            return createStatement(newArgs);
+          },
+          async first() {
+            // 1. SELECT id, username, role, password_hash FROM users WHERE username = ? COLLATE NOCASE
               if (normalizedSql.includes('FROM users WHERE username = ?')) {
                 const targetUsername = String(args[0] || '').toLowerCase();
                 for (const u of users.values()) {
@@ -114,6 +116,12 @@ export async function createInMemoryD1() {
                   }
                 }
                 return null;
+              }
+
+              // 1b. SELECT id FROM users ...
+              if (normalizedSql.includes('FROM users')) {
+                const firstUser = users.values().next().value;
+                return firstUser ? { id: firstUser.id, username: firstUser.username, role: firstUser.role } : null;
               }
 
               // 2. SELECT users.id, users.username, users.role FROM sessions JOIN users ON users.id = sessions.user_id WHERE sessions.token_hash = ? AND sessions.expires_at > datetime('now')
@@ -134,7 +142,16 @@ export async function createInMemoryD1() {
               // 3. SELECT id FROM manga WHERE id = ?
               if (normalizedSql.includes('SELECT id FROM manga WHERE id = ?')) {
                 const mangaId = args[0];
-                const manga = mangas.get(mangaId);
+                const mangaTitle = args[1] ? String(args[1]).toLowerCase() : null;
+                let manga = mangas.get(mangaId);
+                if (!manga && mangaTitle) {
+                  for (const m of mangas.values()) {
+                    if (m.title.toLowerCase() === mangaTitle) {
+                      manga = m;
+                      break;
+                    }
+                  }
+                }
                 return manga ? { id: manga.id } : null;
               }
 
@@ -188,11 +205,12 @@ export async function createInMemoryD1() {
 
             async run() {
               // 1. INSERT INTO users (id, username, password_hash, role) VALUES (?, ?, ?, ?)
-              if (normalizedSql.startsWith('INSERT INTO users')) {
+              if (normalizedSql.startsWith('INSERT INTO users') || normalizedSql.startsWith('INSERT OR IGNORE INTO users')) {
                 const [id, username, password_hash, role] = args;
                 const cleanUsername = String(username).toLowerCase();
                 for (const u of users.values()) {
                   if (u.username.toLowerCase() === cleanUsername) {
+                    if (normalizedSql.startsWith('INSERT OR IGNORE')) return { success: true, meta: { changes: 0 } };
                     throw new Error('UNIQUE constraint failed: users.username');
                   }
                 }
@@ -232,12 +250,15 @@ export async function createInMemoryD1() {
               }
 
               // 4. INSERT INTO manga (...) VALUES (...)
-              if (normalizedSql.startsWith('INSERT INTO manga (id,')) {
+              if (normalizedSql.startsWith('INSERT INTO manga (id,') || normalizedSql.startsWith('INSERT OR IGNORE INTO manga') || normalizedSql.startsWith('INSERT OR REPLACE INTO manga')) {
                 const [
                   id, title, author, genre, link_url, link_description,
                   cover, chapter, tags_json, notes, notes_attachment_json,
                   cover_image, panel_images_json, ratings_json, creator_id,
                 ] = args;
+                if (normalizedSql.startsWith('INSERT OR IGNORE INTO manga') && mangas.has(id)) {
+                  return { success: true, meta: { changes: 0 } };
+                }
                 mangas.set(id, {
                   id,
                   title,
@@ -274,8 +295,9 @@ export async function createInMemoryD1() {
               return { success: true, meta: { changes: 0 } };
             },
           };
-        },
-      };
-    },
+        }
+
+        return createStatement([]);
+      },
   };
 }

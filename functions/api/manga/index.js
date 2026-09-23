@@ -33,6 +33,7 @@ export async function onRequestPost({ request, env }) {
     const id = (data.id && typeof data.id === 'string' && data.id.trim()) ||
                (typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : String(Date.now()));
 
+    const coverImg = String(data.coverImage || data.cover_image || '');
     await env.DB.prepare(`INSERT INTO manga (id, title, author, genre, link_url, link_description, cover, chapter, tags_json, notes, notes_attachment_json, cover_image, panel_images_json, ratings_json, creator_id)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(
       id,
@@ -46,13 +47,13 @@ export async function onRequestPost({ request, env }) {
       JSON.stringify(data.tags || []),
       String(data.notes || ''),
       JSON.stringify(data.notesAttachment || {}),
-      String(data.coverImage || ''),
+      coverImg,
       JSON.stringify(data.panelImages || []),
       JSON.stringify(data.ratings || []),
       user.id,
     ).run();
 
-    return json({ manga: { id, title, author, creatorName: user.username, viewed: false } }, 201);
+    return json({ manga: { id, title, author, creatorName: user.username, viewed: false, coverImage: coverImg, cover_image: coverImg } }, 201);
   } catch (error) {
     console.error('Error adding manga:', error);
     const response = authErrorResponse(error);

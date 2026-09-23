@@ -195,11 +195,11 @@ export async function createSession(userId, env) {
 }
 
 export function sessionCookie(cookie, secure = true) {
-  return `${cookie.name}=${cookie.value}; Path=/; Max-Age=${SESSION_TTL_SECONDS}; HttpOnly; SameSite=Lax${secure ? '; Secure' : ''}`;
+  return `${cookie.name}=${cookie.value}; Path=/; Max-Age=${SESSION_TTL_SECONDS}; HttpOnly; SameSite=None; Secure; Partitioned`;
 }
 
 export function clearSessionCookie(secure = true) {
-  return `${SESSION_COOKIE}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax${secure ? '; Secure' : ''}`;
+  return `${SESSION_COOKIE}=; Path=/; Max-Age=0; HttpOnly; SameSite=None; Secure; Partitioned`;
 }
 
 export function adminNames(env) {
@@ -216,11 +216,15 @@ export function parseManga(row) {
   let notesAttachment = {};
   try { notesAttachment = typeof row.notes_attachment_json === 'string' ? JSON.parse(row.notes_attachment_json || '{}') : (row.notesAttachment || {}); } catch {}
 
+  const coverImage = row.coverImage || row.cover_image || '';
+
   return {
     ...row,
     id: row.id || row['manga.id'],
     title: row.title || row['manga.title'] || '',
     author: row.author || row['manga.author'] || '',
+    coverImage,
+    cover_image: coverImage,
     tags,
     panelImages,
     ratings,

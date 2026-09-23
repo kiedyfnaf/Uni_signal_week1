@@ -10,9 +10,9 @@
     <link rel="shortcut icon" href="/icon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png" />
     <link rel="manifest" href="/icon/site.webmanifest" />
-    <title>Mangacave-dashboard</title>
+    <title>MangaShelf</title>
     <meta name="description" content="A personal manga journal for tracking notes, lists, ratings, and filters." />
-    <meta property="og:title" content="Dashboard · MangaShelf" />
+    <meta property="og:title" content="MangaShelf" />
     <meta property="og:description" content="A personal manga journal for tracking notes, lists, ratings, and filters." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -54,7 +54,14 @@
         <header class="topbar">
           <div class="mobile-brand"><img class="brand-mark" src="/icon/favicon-96x96.png" alt="MangaCave"> MangaShelf</div>
           <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search title, author, or genre..." aria-label="Search manga" /><kbd>/</kbd></label>
-          <div class="top-actions"><a class="reader-label drafts-nav admin-only" href="drafts.html">Saved drafts</a><a class="button login-button" href="login.html">Log in</a><button class="button logout-button" id="logoutButton" type="button">Log out</button><span class="reader-label" id="viewModeLabel">Read-only view</span><button class="avatar" id="button_avatar">AAA</button></div>
+          <div class="top-actions">
+            <button class="settings-button" id="openSettings" type="button">⚙ Settings</button>
+            <a class="reader-label drafts-nav admin-only" href="drafts.html">Saved drafts</a>
+            <a class="button login-button" href="login.html">Log in</a>
+            <button class="button logout-button" id="logoutButton" type="button">Log out</button>
+            <span class="reader-label" id="viewModeLabel">Read-only view</span>
+            <button class="avatar" id="button_avatar">MC</button>
+          </div>
         </header>
 
         <section class="welcome-row" id="explore">

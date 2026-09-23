@@ -14,6 +14,8 @@ const app = express();
 const PORT = 3000;
 const HOST = '0.0.0.0';
 
+app.set('trust proxy', true);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 

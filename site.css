@@ -19,3 +19,206 @@
 .photo-modal-caption{color:#e8e1d8;font:500 13px 'DM Mono',monospace;margin-top:12px;text-align:center}
 .photo-modal-close{position:absolute;top:-18px;right:-18px;width:36px;height:36px;border-radius:50%;background:#ffffff;border:none;color:#24211f;font-size:20px;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:transform .15s}
 .photo-modal-close:hover{transform:scale(1.1);background:#f2ede4}
+
+/* 1. Manga front cover image framing and size */
+.card-cover-image {
+  width: 100% !important;
+  height: 247px !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  border-radius: 7px !important;
+  display: block !important;
+  background: #f1ede6;
+}
+.view-cover {
+  width: 230px !important;
+  height: 325px !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  border-radius: 7px !important;
+  display: block !important;
+  background: #f1ede6;
+}
+.cover-preview img {
+  width: 120px !important;
+  height: 165px !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  border-radius: 6px !important;
+  display: block !important;
+}
+
+/* 2. Filter tab layout: Filters on left, Manga on right side-by-side */
+.filters-shell {
+  max-width: none !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 0 44px 70px !important;
+}
+.filter-workspace {
+  display: grid !important;
+  grid-template-columns: 320px minmax(0, 1fr) !important;
+  gap: 32px !important;
+  align-items: start !important;
+}
+.filter-panel {
+  width: 100% !important;
+  max-width: 320px !important;
+  box-sizing: border-box !important;
+  position: sticky !important;
+  top: 24px !important;
+}
+.filter-results-container {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+.filter-results:not(.list-view) {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)) !important;
+  gap: 22px 16px !important;
+  align-items: start !important;
+}
+.filter-results:not(.list-view) .filter-result-cover {
+  width: 100% !important;
+  height: 240px !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+}
+.filter-results:not(.list-view) .filter-result-cover img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  display: block !important;
+}
+@media (max-width: 900px) {
+  .filter-workspace {
+    grid-template-columns: 1fr !important;
+  }
+  .filter-panel {
+    position: static !important;
+    max-width: 100% !important;
+  }
+}
+
+/* 3. Settings button on all pages + settings dialog */
+.settings-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  border: 1px solid var(--line, #e8e1d8) !important;
+  border-radius: 5px !important;
+  background: var(--white, #fffdfa) !important;
+  color: var(--ink, #24211f) !important;
+  padding: 8px 13px !important;
+  font-family: Manrope, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  transition: all .15s ease !important;
+  box-sizing: border-box !important;
+}
+.settings-button:hover {
+  border-color: var(--coral, #ff765f) !important;
+  background: var(--paper, #f8f5ef) !important;
+}
+.settings-dialog {
+  width: min(420px, calc(100% - 30px)) !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  padding: 30px !important;
+  background: var(--white, #fffdfa) !important;
+  color: var(--ink, #24211f) !important;
+  box-shadow: 0 20px 70px #2b211c3b !important;
+}
+.settings-dialog::backdrop {
+  background: #27221f66 !important;
+  backdrop-filter: blur(3px) !important;
+}
+.settings-dialog h2 {
+  font: 400 30px Georgia, serif !important;
+  margin: 9px 0 !important;
+}
+.settings-dialog > p:not(.eyebrow) {
+  color: var(--muted, #817a72) !important;
+  line-height: 1.5 !important;
+}
+.settings-dialog label {
+  display: grid !important;
+  gap: 7px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  margin-top: 22px !important;
+}
+.settings-dialog select {
+  border: 1px solid var(--line, #e8e1d8) !important;
+  border-radius: 5px !important;
+  padding: 11px !important;
+  background: var(--white, #fffdfa) !important;
+  color: var(--ink, #24211f) !important;
+  font: 13px Manrope !important;
+}
+
+/* Themes across all pages */
+[data-theme="ocean"], body[data-theme="ocean"] {
+  --paper: #edf6f1;
+  --white: #f9fffc;
+  --ink: #193834;
+  --muted: #5a7b75;
+  --line: #cfe1da;
+  --coral: #2d9b87;
+  --yellow: #cce5a8;
+  --blue: #b9dfe3;
+  --mint: #bfe3d1;
+}
+[data-theme="red"], body[data-theme="red"] {
+  --paper: #211d20;
+  --white: #2d2528;
+  --ink: #fae9df;
+  --muted: #c0a8a0;
+  --line: #563d3f;
+  --coral: #ef6a55;
+  --yellow: #d6a34c;
+  --blue: #7e9ca3;
+  --mint: #7daf8d;
+}
+[data-theme="red"] .site-rail, body[data-theme="red"] .site-rail, [data-theme="red"] .sidebar, body[data-theme="red"] .sidebar {
+  background: #191619 !important;
+  border-color: #563d3f !important;
+}
+[data-theme="red"] .editor-topbar, body[data-theme="red"] .editor-topbar, [data-theme="red"] .topbar, body[data-theme="red"] .topbar {
+  border-color: #563d3f !important;
+}
+[data-theme="ocean"] .site-rail, body[data-theme="ocean"] .site-rail, [data-theme="ocean"] .sidebar, body[data-theme="ocean"] .sidebar {
+  background: #e7f2ed !important;
+  border-color: #cfe1da !important;
+}
+
+/* 4. Top right corner user avatar text and background perfectly centered */
+.avatar, #button_avatar, #profileAvatar {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  width: 42px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-indent: 0 !important;
+  font-family: 'DM Mono', monospace, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  background: #ecbca6 !important;
+  color: #684639 !important;
+  box-sizing: border-box !important;
+}
+#button_avatar {
+  cursor: pointer !important;
+}

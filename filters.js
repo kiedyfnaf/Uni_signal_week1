@@ -85,7 +85,8 @@ function render() {
   results.innerHTML = matches.map((manga) => {
     const score = category === 'all' ? averageFor(manga) : scoresFor(manga)[categoryIndex];
     const visitorScore = visitorAverageFor(manga);
-    const image = manga.coverImage ? `<img src="${manga.coverImage}" alt="${escapeHtml(manga.title)} cover" />` : '<span>M</span>';
+    const coverSrc = manga.coverImage || manga.cover_image;
+    const image = coverSrc ? `<img src="${escapeHtml(coverSrc)}" alt="${escapeHtml(manga.title)} cover" />` : '<span>M</span>';
     const filterUrl = manga.id ? `manga-view.html?id=${encodeURIComponent(manga.id)}&title=${encodeURIComponent(manga.title)}` : `manga-view.html?title=${encodeURIComponent(manga.title)}`;
     return `<a class="filter-result" href="${filterUrl}"><div class="filter-result-cover ${escapeHtml(manga.cover || '')}">${image}</div><div class="filter-result-copy"><strong>${escapeHtml(manga.title)}</strong><p>${escapeHtml(manga.author)} · ${escapeHtml(manga.genre)}</p><small>Created by ${escapeHtml(manga.creatorName || 'MangaShelf')} · ${manga.viewed ? 'Viewed' : 'Unviewed'}</small></div><b class="filter-result-score">${score.toFixed(1)} <small>my score</small><em>${visitorScore === null ? '—' : visitorScore.toFixed(1)} <small>visitors</small></em></b></a>`;
   }).join('') || '<p class="empty-state visible">No manga matches those filters.</p>';

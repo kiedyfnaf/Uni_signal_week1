@@ -23,3 +23,60 @@ const brandObserver = new MutationObserver((mutations) => {
   });
 });
 brandObserver.observe(document.body, { childList: true, subtree: true });
+
+// Global theme and settings dialog support across all pages
+(function initGlobalSettings() {
+  const currentTheme = localStorage.getItem('mangaShelfTheme') || 'current';
+  document.body.dataset.theme = currentTheme;
+
+  function ensureSettingsDialog() {
+    let dialog = document.querySelector('#settingsDialog');
+    if (!dialog) {
+      dialog = document.createElement('dialog');
+      dialog.id = 'settingsDialog';
+      dialog.className = 'settings-dialog';
+      dialog.innerHTML = `
+        <button class="close-dialog" id="closeSettings" type="button" aria-label="Close settings">×</button>
+        <p class="eyebrow">Workspace settings</p>
+        <h2>Choose a visual style.</h2>
+        <p>Only your local view changes. The manga data stays the same.</p>
+        <label>Theme
+          <select id="themeSelect">
+            <option value="current">MangaShelf original</option>
+            <option value="ocean">Green-blue studio</option>
+            <option value="red">Red-black archive</option>
+          </select>
+        </label>
+      `;
+      document.body.appendChild(dialog);
+    }
+
+    const select = dialog.querySelector('#themeSelect');
+    if (select) select.value = document.body.dataset.theme || 'current';
+
+    dialog.querySelector('#closeSettings')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+    select?.addEventListener('change', () => {
+      const newTheme = select.value;
+      document.body.dataset.theme = newTheme;
+      localStorage.setItem('mangaShelfTheme', newTheme);
+    });
+
+    return dialog;
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#openSettings, .settings-button, [data-action="open-settings"]');
+    if (btn) {
+      e.preventDefault();
+      const dialog = ensureSettingsDialog();
+      dialog.showModal();
+    }
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureSettingsDialog);
+  } else {
+    ensureSettingsDialog();
+  }
+})();

@@ -180,8 +180,9 @@ async function initView() {
   const visitorAverage = visitorScores.length ? visitorScores.reduce((sum, score) => sum + score, 0) / visitorScores.length : null;
   const combinedAverage = visitorAverage === null ? personalAverage : (personalAverage + visitorAverage) / 2;
 
-  const cover = manga.coverImage
-    ? `<img class="view-cover zoomable-image" src="${manga.coverImage}" alt="${escapeHtml(title)} front cover" title="Click to view full photo" />`
+  const coverSrc = manga.coverImage || manga.cover_image;
+  const cover = coverSrc
+    ? `<img class="view-cover zoomable-image" src="${escapeHtml(coverSrc)}" alt="${escapeHtml(title)} front cover" title="Click to view full photo" />`
     : (manga.cover ? `<div class="cover ${escapeHtml(manga.cover)}"><span class="cover-kicker">MANGA JOURNAL</span><strong>${escapeHtml(title)}</strong><span class="cover-volume">${escapeHtml(manga.chapter || 'VOL. 01')}</span></div>` : `<div class="view-cover-fallback">M</div>`);
 
   const tags = manga.tags?.length

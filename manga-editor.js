@@ -118,8 +118,18 @@ function renderNotesAttachment() {
   });
 }
 
+const coverImageUrl = document.querySelector('#coverImageUrl');
+
 function renderImagePreviews() {
-  coverPreview.innerHTML = coverImageData ? `<img src="${coverImageData}" alt="Selected front cover preview" />` : '';
+  coverPreview.innerHTML = coverImageData
+    ? `<div class="cover-preview-card" style="display:inline-flex;position:relative;"><img src="${coverImageData}" alt="Selected front cover preview" style="width:120px;height:165px;object-fit:cover;object-position:center top;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,0.18);" /><button type="button" id="removeCoverImage" aria-label="Remove front cover" style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:none;background:#24211f;color:#fff;cursor:pointer;font-size:14px;line-height:1;display:grid;place-items:center;">×</button></div>`
+    : '';
+  document.querySelector('#removeCoverImage')?.addEventListener('click', () => {
+    coverImageData = '';
+    coverImage.value = '';
+    if (coverImageUrl) coverImageUrl.value = '';
+    renderImagePreviews();
+  });
   panelPreview.innerHTML = panelImageData.map((image, index) => `<div class="panel-thumb"><img src="${image}" alt="Selected manga panel ${index + 1}" /><button type="button" data-panel-index="${index}" aria-label="Remove panel ${index + 1}">×</button></div>`).join('');
   panelPreview.querySelectorAll('button').forEach((button) => {
     button.addEventListener('click', () => {
@@ -196,8 +206,18 @@ tagInput.addEventListener('keydown', (event) => {
   }
 });
 coverImage.addEventListener('change', async () => {
-  coverImageData = coverImage.files[0] ? await readImage(coverImage.files[0]) : '';
-  renderImagePreviews();
+  if (coverImage.files[0]) {
+    coverImageData = await readImage(coverImage.files[0]);
+    if (coverImageUrl) coverImageUrl.value = '';
+    renderImagePreviews();
+  }
+});
+coverImageUrl?.addEventListener('input', () => {
+  const val = coverImageUrl.value.trim();
+  if (val) {
+    coverImageData = val;
+    renderImagePreviews();
+  }
 });
 panelImages.addEventListener('change', async () => {
   const selectedImages = await Promise.all([...panelImages.files].map(readImage));

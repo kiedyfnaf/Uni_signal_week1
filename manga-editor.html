@@ -24,7 +24,7 @@
       <header class="editor-topbar">
         <a class="brand" href="index.html" aria-label="Back to MangaCave home"><img class="brand-mark" src="/icon/favicon-96x96.png" alt="MangaCave"></a>
         <span class="reader-label">Owner editor · private writing space</span>
-        <a class="text-link" href="index.html">← Back to journal</a>
+        <div class="filter-header-actions" style="display:flex;align-items:center;gap:14px;"><button class="settings-button" id="openSettings" type="button">⚙ Settings</button><a class="text-link" href="index.html">← Back to journal</a></div>
       </header>
 
       <div class="editor-intro">
@@ -52,7 +52,8 @@
 
           <div class="editor-panel image-panel">
             <div class="panel-heading"><div><p class="eyebrow">Visual archive</p><h2>Images from this manga</h2></div><span class="field-hint">Stored in this browser</span></div>
-            <label>Front cover image <span class="field-hint">One image</span><input id="coverImage" type="file" accept="image/*" /></label>
+            <label>Front cover image <span class="field-hint">Upload image file or paste URL</span><input id="coverImage" type="file" accept="image/*" /></label>
+            <label style="margin-top:-6px;margin-bottom:12px;">Or paste image URL<input id="coverImageUrl" type="url" placeholder="https://example.com/cover.jpg" /></label>
             <div id="coverPreview" class="cover-preview"></div>
             <label>Panel gallery <span class="field-hint">Select multiple images</span><input id="panelImages" type="file" accept="image/*" multiple /></label>
             <div id="panelPreview" class="panel-preview" aria-live="polite"></div>
