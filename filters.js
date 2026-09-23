@@ -30,7 +30,7 @@ document.querySelector('#openSettings').addEventListener('click', () => settings
 document.querySelector('#closeSettings').addEventListener('click', () => settingsDialog.close());
 settingsDialog.addEventListener('click', (event) => { if (event.target === settingsDialog) settingsDialog.close(); });
 themeSelect.addEventListener('change', () => applyTheme(themeSelect.value));
-applyTheme(localStorage.getItem('mangaShelfTheme') || 'current');
+applyTheme(localStorage.getItem('mangaShelfTheme') || 'midnight');
 function scoresFor(manga) { return manga.ratings?.length ? categories.map((category) => { const score = manga.ratings.find((rating) => rating.category === category)?.score ?? 0; return score > 10 ? score / 2 : score; }) : categories.map(() => 0); }
 function averageFor(manga) { return scoresFor(manga).reduce((sum, score) => sum + score, 0) / categories.length; }
 function visitorAverageFor(manga) { const ratings = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}')[manga.title]?.ratings || []; return ratings.length ? ratings.reduce((sum, score) => sum + score, 0) / ratings.length : null; }

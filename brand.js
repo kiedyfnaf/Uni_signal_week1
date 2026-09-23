@@ -26,7 +26,7 @@ brandObserver.observe(document.body, { childList: true, subtree: true });
 
 // Global theme and settings dialog support across all pages
 (function initGlobalSettings() {
-  const savedTheme = localStorage.getItem('mangaShelfTheme') || 'current';
+  const savedTheme = localStorage.getItem('mangaShelfTheme') || 'midnight';
   document.documentElement.dataset.theme = savedTheme;
   if (document.body) {
     document.body.dataset.theme = savedTheme;
@@ -72,7 +72,7 @@ brandObserver.observe(document.body, { childList: true, subtree: true });
 
     const select = dialog.querySelector('#themeSelect');
     if (select) {
-      select.value = localStorage.getItem('mangaShelfTheme') || 'current';
+      select.value = localStorage.getItem('mangaShelfTheme') || 'midnight';
       select.onchange = () => {
         applyThemeEverywhere(select.value);
       };
@@ -91,7 +91,7 @@ brandObserver.observe(document.body, { childList: true, subtree: true });
       e.preventDefault();
       const dialog = ensureSettingsDialog();
       const select = dialog.querySelector('#themeSelect');
-      if (select) select.value = localStorage.getItem('mangaShelfTheme') || 'current';
+      if (select) select.value = localStorage.getItem('mangaShelfTheme') || 'midnight';
       if (typeof dialog.showModal === 'function') {
         dialog.showModal();
       } else {
