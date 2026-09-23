@@ -89,6 +89,7 @@ app.post('/api/auth/logout', (req, res) => dispatch(logoutHandler.onRequestPost,
 app.get('/api/manga', (req, res) => dispatch(mangaIndexHandler.onRequestGet, req, res));
 app.post('/api/manga', (req, res) => dispatch(mangaIndexHandler.onRequestPost, req, res));
 app.get('/api/manga/:id', (req, res) => dispatch(mangaDetailHandler.onRequestGet, req, res, { id: req.params.id }));
+app.delete('/api/manga/:id', (req, res) => dispatch(mangaDetailHandler.onRequestDelete, req, res, { id: req.params.id }));
 app.post('/api/manga/:id/viewed', (req, res) => dispatch(mangaViewedHandler.onRequestPost, req, res, { id: req.params.id }));
 
 // Clean URLs

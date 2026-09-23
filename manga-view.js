@@ -265,7 +265,7 @@ async function initView() {
           Chapter
           <div class="chapter-input-wrap">
             <span class="chapter-prefix">Ch.</span>
-            <input id="chapterInput" type="number" min="0" max="99999" step="1" value="${readingProgress.currentChapter || 1}" class="chapter-number-input" placeholder="561" aria-label="Current chapter number" />
+            <input id="chapterInput" type="text" inputmode="numeric" value="${readingProgress.currentChapter !== undefined && readingProgress.currentChapter !== null ? escapeHtml(readingProgress.currentChapter) : '1'}" class="chapter-number-input" placeholder="561" aria-label="Current chapter number" />
           </div>
         </label>
       </div>
@@ -276,13 +276,27 @@ async function initView() {
     </section>
   `;
 
+  const adminDeleteBtn = user?.role === 'admin' ? `
+    <div class="admin-actions-bar">
+      <button id="adminDeleteMangaBtn" class="admin-delete-btn" type="button" title="Delete this manga from database">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+        Delete Manga
+      </button>
+    </div>
+  ` : '';
+
   content.innerHTML = `
     <section class="view-hero">
       <div>${cover}</div>
       <div>
-        <p class="eyebrow">Manga journal entry</p>
-        <h1>${escapeHtml(title)}<span>.</span></h1>
-        <p class="view-byline">${escapeHtml(manga.author)} · ${escapeHtml(manga.genre)}${creatorMarker}</p>
+        <div class="view-hero-top-row">
+          <div>
+            <p class="eyebrow">Manga journal entry</p>
+            <h1>${escapeHtml(title)}<span>.</span></h1>
+            <p class="view-byline">${escapeHtml(manga.author)} · ${escapeHtml(manga.genre)}${creatorMarker}</p>
+          </div>
+          ${adminDeleteBtn}
+        </div>
         <div class="view-score">
           <strong>${combinedAverage !== null ? combinedAverage.toFixed(1) : (personalAverage !== null ? personalAverage.toFixed(1) : (visitorAverage !== null ? visitorAverage.toFixed(1) : '—'))}</strong>
           <span>combined score / 10<br />My score ${personalAverage !== null ? personalAverage.toFixed(1) : '—'} · Visitors ${visitorAverage === null ? '—' : visitorAverage.toFixed(1)}</span>
@@ -378,19 +392,56 @@ async function initView() {
   });
 
   chapterInput?.addEventListener('input', () => {
-    const val = parseInt(chapterInput.value, 10);
-    if (!isNaN(val) && val >= 0) {
-      readingProgress.currentChapter = val;
-      saveProgress();
-    }
+    const val = chapterInput.value.trim();
+    readingProgress.currentChapter = val;
+    saveProgress();
   });
 
   chapterInput?.addEventListener('change', () => {
-    const val = parseInt(chapterInput.value, 10);
-    if (!isNaN(val) && val >= 0) {
-      readingProgress.currentChapter = val;
-      saveProgress();
-      showToast(`Chapter progress saved: Ch. ${val}`);
+    const val = chapterInput.value.trim();
+    readingProgress.currentChapter = val;
+    saveProgress();
+    showToast(`Chapter progress saved: ${val ? 'Ch. ' + val : 'Cleared'}`);
+  });
+
+  // Handle Admin Delete Manga from DB
+  const deleteMangaBtn = document.querySelector('#adminDeleteMangaBtn');
+  deleteMangaBtn?.addEventListener('click', async () => {
+    const confirmDelete = window.confirm(`Are you sure you want to permanently delete "${title}" from the database? This action cannot be undone.`);
+    if (!confirmDelete) return;
+
+    deleteMangaBtn.disabled = true;
+    deleteMangaBtn.innerHTML = `
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+      Deleting...
+    `;
+
+    try {
+      const targetId = manga.id || mangaIdentifier;
+      await MangaAuth.api(`/api/manga/${encodeURIComponent(targetId)}`, {
+        method: 'DELETE'
+      });
+
+      // Clear local cache entries
+      const cached = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
+      const filtered = cached.filter((item) => item.id !== manga.id && item.title !== title);
+      localStorage.setItem('mangaJournalEntries', JSON.stringify(filtered));
+
+      // Remove from favorites & visitor ratings
+      const favs = JSON.parse(localStorage.getItem('mangaSavedFavorites') || '[]');
+      localStorage.setItem('mangaSavedFavorites', JSON.stringify(favs.filter((f) => f !== manga.id && f !== title)));
+
+      showToast(`"${title}" deleted successfully! Redirecting...`);
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 900);
+    } catch (err) {
+      deleteMangaBtn.disabled = false;
+      deleteMangaBtn.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+        Delete Manga
+      `;
+      showToast('Error deleting manga: ' + (err.message || 'Server error'));
     }
   });
 

@@ -100,6 +100,24 @@ export async function createInMemoryD1() {
                 };
               }
 
+              // 4b. General SELECT from manga WHERE id = ?
+              if (normalizedSql.includes('FROM manga') && normalizedSql.includes('WHERE')) {
+                for (const arg of args) {
+                  if (!arg) continue;
+                  const targetLower = String(arg).toLowerCase();
+                  for (const item of mangas.values()) {
+                    if (item.id === arg || item.title.toLowerCase() === targetLower) {
+                      const creator = users.get(item.creator_id);
+                      return {
+                        ...item,
+                        creatorName: creator ? creator.username : 'MangaShelf',
+                        viewed: 0,
+                      };
+                    }
+                  }
+                }
+              }
+
               return null;
             },
 
@@ -211,6 +229,32 @@ export async function createInMemoryD1() {
                   updated_at: new Date().toISOString(),
                 });
                 return { success: true, meta: { changes: 1 } };
+              }
+
+              // 6. DELETE FROM manga WHERE id = ?
+              if (normalizedSql.startsWith('DELETE FROM manga WHERE')) {
+                const target = String(args[0] || '').toLowerCase();
+                let deletedCount = 0;
+                for (const [key, m] of mangas.entries()) {
+                  if (m.id === args[0] || m.title.toLowerCase() === target) {
+                    mangas.delete(key);
+                    deletedCount += 1;
+                  }
+                }
+                return { success: true, meta: { changes: deletedCount } };
+              }
+
+              // 7. DELETE FROM manga_views WHERE manga_id = ?
+              if (normalizedSql.startsWith('DELETE FROM manga_views WHERE')) {
+                const mangaId = args[0];
+                let deletedViews = 0;
+                for (const [key, v] of mangaViews.entries()) {
+                  if (v.manga_id === mangaId) {
+                    mangaViews.delete(key);
+                    deletedViews += 1;
+                  }
+                }
+                return { success: true, meta: { changes: deletedViews } };
               }
 
               return { success: true, meta: { changes: 0 } };

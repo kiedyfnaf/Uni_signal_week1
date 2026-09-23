@@ -8,6 +8,7 @@ const logoutButton = document.querySelector('#logoutButton');
 let currentMangaList = [];
 let cards = [];
 let showingFavoritesOnly = false;
+let activeUser = null;
 
 function getSavedFavorites() {
   try {
@@ -37,6 +38,7 @@ async function setupAuthUi() {
   } catch {
     user = null;
   }
+  activeUser = user;
   const isAdmin = user?.role === 'admin';
   adminOnlyElements.forEach((element) => { element.style.display = isAdmin ? '' : 'none'; });
   loginElements.forEach((element) => { element.style.display = user ? 'none' : 'inline-flex'; });
@@ -51,6 +53,9 @@ async function setupAuthUi() {
   if (profileAvatar) profileAvatar.textContent = user ? user.username.slice(0, 2).toUpperCase() : 'MC';
   if (avatarButton) avatarButton.textContent = user ? user.username.slice(0, 2).toUpperCase() : 'MC';
   if (viewModeLabel) viewModeLabel.textContent = isAdmin ? 'Admin view' : 'Read-only view';
+  if (isAdmin && currentMangaList.length > 0) {
+    renderMangaList(currentMangaList);
+  }
   return user;
 }
 
@@ -131,9 +136,33 @@ function renderMangaList(list) {
       <p class="manga-note">“${noteSnippet}”</p>
       <div class="card-meta">
         <span>${(entry.tags || []).length} tags ${viewedBadge}</span>
-        <button class="save-button ${isFavorite ? 'saved' : ''}" type="button" aria-label="Save ${escapeHtml(entry.title)} to favorites">${isFavorite ? '♥' : '♡'}</button>
+        <div style="display:flex; align-items:center; gap:6px;">
+          ${activeUser?.role === 'admin' ? `<button class="admin-card-delete-btn" type="button" title="Delete ${escapeHtml(entry.title)} from database" aria-label="Delete manga">🗑</button>` : ''}
+          <button class="save-button ${isFavorite ? 'saved' : ''}" type="button" aria-label="Save ${escapeHtml(entry.title)} to favorites">${isFavorite ? '♥' : '♡'}</button>
+        </div>
       </div>
     `;
+
+    // Admin Delete button event
+    if (activeUser?.role === 'admin') {
+      card.querySelector('.admin-card-delete-btn')?.addEventListener('click', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const confirmed = window.confirm(`Permanently delete "${entry.title}" from the database? This cannot be undone.`);
+        if (!confirmed) return;
+
+        try {
+          await MangaAuth.api(`/api/manga/${encodeURIComponent(entry.id || entry.title)}`, {
+            method: 'DELETE'
+          });
+          currentMangaList = currentMangaList.filter((m) => m.id !== entry.id && m.title !== entry.title);
+          localStorage.setItem('mangaJournalEntries', JSON.stringify(currentMangaList));
+          renderMangaList(currentMangaList);
+        } catch (err) {
+          alert('Delete failed: ' + (err.message || 'Server error'));
+        }
+      });
+    }
 
     // Save button event
     card.querySelector('.save-button').addEventListener('click', (event) => {

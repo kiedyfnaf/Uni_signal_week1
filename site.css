@@ -233,11 +233,77 @@
   background: transparent !important;
   font: 700 13px 'DM Mono', monospace !important;
   color: var(--ink, #24211f) !important;
-  width: 70px !important;
+  width: 90px !important;
   padding: 0 !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: textfield !important;
+  appearance: none !important;
+}
+.chapter-number-input::-webkit-outer-spin-button,
+.chapter-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
 }
 .chapter-number-input:focus {
   outline: none !important;
+}
+
+/* ========================================================
+   ADMIN DELETE CONTROLS
+   ======================================================== */
+.view-hero-top-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
+}
+.admin-actions-bar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-bottom: 8px !important;
+}
+.admin-delete-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: #fbf0ed !important;
+  color: #c93b2b !important;
+  border: 1px solid #f2c7c2 !important;
+  padding: 8px 14px !important;
+  font: 700 12px Manrope, sans-serif !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.admin-delete-btn:hover {
+  background: #c93b2b !important;
+  color: #ffffff !important;
+  border-color: #c93b2b !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(201, 59, 43, 0.25) !important;
+}
+.admin-delete-btn svg {
+  stroke: currentColor;
+}
+.admin-card-delete-btn {
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: #a99d93 !important;
+  padding: 4px 6px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  transition: all 0.15s ease !important;
+  margin-left: auto !important;
+  margin-right: 6px !important;
+}
+.admin-card-delete-btn:hover {
+  color: #c93b2b !important;
+  background: #fdf1ef !important;
+  border-color: #f7d2cd !important;
 }
 
 /* ========================================================
