@@ -70,59 +70,6 @@ const rankingScores = {
   'Witch Hat Atelier': [9.8, 9.1, 8.9, 9.0, 8.8, 9.0, 8.5, 9.9, 9.3, 7.8, 8.9, 9.2, 9.3, 9.7, 9.8, 6.9, 7.2, 9.7, 8.4, 9.5],
 };
 
-const defaultSeedManga = [
-  {
-    id: 'manga-dandadan',
-    title: 'Dandadan',
-    author: 'Yukinobu Tatsu',
-    genre: 'Action / Supernatural',
-    cover: 'cover-dandadan',
-    chapter: 'VOL. 04',
-    tags: ['Action', 'Supernatural', 'Aliens', 'Ghosts'],
-    notes: 'Chaotic, funny, and impossible to put down.',
-    creatorName: 'MangaShelf',
-  },
-  {
-    id: 'manga-blue-period',
-    title: 'Blue Period',
-    author: 'Tsubasa Yamaguchi',
-    genre: 'Drama / Art',
-    cover: 'cover-blue',
-    chapter: 'VOL. 08',
-    tags: ['Drama', 'Art', 'School', 'Growth'],
-    notes: 'A quiet story about finding a language for feeling.',
-    creatorName: 'MangaShelf',
-  },
-  {
-    id: 'manga-frieren',
-    title: 'Frieren',
-    author: 'Kanehito Yamada',
-    genre: 'Fantasy / Adventure',
-    cover: 'cover-frieren',
-    chapter: 'VOL. 06',
-    tags: ['Fantasy', 'Adventure', 'Magic', 'Melancholy'],
-    notes: 'A tender reminder that time gives small moments their weight.',
-    creatorName: 'MangaShelf',
-  },
-  {
-    id: 'manga-witch-hat',
-    title: 'Witch Hat Atelier',
-    author: 'Kamome Shirahama',
-    genre: 'Fantasy / Magic',
-    cover: 'cover-witch',
-    chapter: 'VOL. 12',
-    tags: ['Fantasy', 'Magic', 'Art', 'Wonder'],
-    notes: 'Every page feels like opening a secret door into another world.',
-    creatorName: 'MangaShelf',
-  },
-];
-
-function mergeWithDefaultManga(list) {
-  const existingTitles = new Set((list || []).map((m) => (m.title || '').trim().toLowerCase()));
-  const missing = defaultSeedManga.filter((d) => !existingTitles.has(d.title.toLowerCase()));
-  return [...(list || []), ...missing];
-}
-
 function getRanking(title) {
   const scores = rankingScores[title] || rankingCategories.map((_, index) => Number((7 + ((index * 7) % 29) / 10).toFixed(1)));
   return rankingCategories.map((category, index) => ({ category, score: scores[index] }));
@@ -258,7 +205,15 @@ function filterManga() {
     if (visible) visibleCards += 1;
   });
 
-  if (emptyState) emptyState.style.display = visibleCards ? 'none' : 'block';
+  if (emptyState) {
+    if (currentMangaList.length === 0) {
+      emptyState.textContent = 'No manga reviews yet. Click "Add manga" to create your first review!';
+      emptyState.style.display = 'block';
+    } else {
+      emptyState.textContent = 'No manga found for that search.';
+      emptyState.style.display = visibleCards ? 'none' : 'block';
+    }
+  }
 }
 
 searchInput?.addEventListener('input', filterManga);
@@ -302,7 +257,7 @@ async function hydrateMangaData() {
       return res.json();
     });
     if (response?.manga) {
-      const fullList = mergeWithDefaultManga(response.manga);
+      const fullList = response.manga;
       localStorage.setItem('mangaJournalEntries', JSON.stringify(fullList));
       renderMangaList(fullList);
       return;
@@ -311,9 +266,9 @@ async function hydrateMangaData() {
     console.warn('Could not fetch /api/manga dynamically, reading local cache:', error);
   }
 
-  // Fallback to cache or defaults
+  // Fallback to cache without old hardcoded seeds
   const cached = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
-  const listToRender = cached.length ? mergeWithDefaultManga(cached) : defaultSeedManga;
+  const listToRender = cached.filter((item) => !item.id?.startsWith('manga-dandadan') && !item.id?.startsWith('manga-blue') && !item.id?.startsWith('manga-frieren') && !item.id?.startsWith('manga-witch'));
   renderMangaList(listToRender);
 }
 

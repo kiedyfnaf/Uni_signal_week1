@@ -26,8 +26,24 @@ brandObserver.observe(document.body, { childList: true, subtree: true });
 
 // Global theme and settings dialog support across all pages
 (function initGlobalSettings() {
-  const currentTheme = localStorage.getItem('mangaShelfTheme') || 'current';
-  document.body.dataset.theme = currentTheme;
+  const savedTheme = localStorage.getItem('mangaShelfTheme') || 'current';
+  document.documentElement.dataset.theme = savedTheme;
+  if (document.body) {
+    document.body.dataset.theme = savedTheme;
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.dataset.theme = savedTheme;
+    });
+  }
+
+  function applyThemeEverywhere(newTheme) {
+    document.documentElement.dataset.theme = newTheme;
+    if (document.body) document.body.dataset.theme = newTheme;
+    localStorage.setItem('mangaShelfTheme', newTheme);
+    document.querySelectorAll('#themeSelect').forEach((sel) => {
+      sel.value = newTheme;
+    });
+  }
 
   function ensureSettingsDialog() {
     let dialog = document.querySelector('#settingsDialog');
@@ -37,30 +53,34 @@ brandObserver.observe(document.body, { childList: true, subtree: true });
       dialog.className = 'settings-dialog';
       dialog.innerHTML = `
         <button class="close-dialog" id="closeSettings" type="button" aria-label="Close settings">×</button>
-        <p class="eyebrow">Workspace settings</p>
-        <h2>Choose a visual style.</h2>
-        <p>Only your local view changes. The manga data stays the same.</p>
-        <label>Theme
+        <p class="eyebrow">Workspace appearance</p>
+        <h2>Change UI color.</h2>
+        <p>Pick a theme to customize colors across every page of MangaCave.</p>
+        <label>Theme &amp; Accent
           <select id="themeSelect">
-            <option value="current">MangaShelf original</option>
-            <option value="ocean">Green-blue studio</option>
-            <option value="red">Red-black archive</option>
+            <option value="current">Warm Paper (Original Light)</option>
+            <option value="ocean">Teal Ocean (Cool Green-Blue)</option>
+            <option value="red">Red Obsidian (Dark Archive)</option>
+            <option value="midnight">Midnight Blue (Deep Dark Slate)</option>
+            <option value="monochrome">Monochrome (High Contrast)</option>
           </select>
         </label>
+        <p class="theme-applied-note" style="margin-top: 14px; font: 500 11px 'DM Mono', monospace; color: var(--coral, #ff765f);">✓ Saved across all pages</p>
       `;
       document.body.appendChild(dialog);
     }
 
     const select = dialog.querySelector('#themeSelect');
-    if (select) select.value = document.body.dataset.theme || 'current';
+    if (select) {
+      select.value = localStorage.getItem('mangaShelfTheme') || 'current';
+      select.onchange = () => {
+        applyThemeEverywhere(select.value);
+      };
+    }
 
-    dialog.querySelector('#closeSettings')?.addEventListener('click', () => dialog.close());
-    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
-    select?.addEventListener('change', () => {
-      const newTheme = select.value;
-      document.body.dataset.theme = newTheme;
-      localStorage.setItem('mangaShelfTheme', newTheme);
-    });
+    const closeBtn = dialog.querySelector('#closeSettings');
+    if (closeBtn) closeBtn.onclick = () => dialog.close();
+    dialog.onclick = (e) => { if (e.target === dialog) dialog.close(); };
 
     return dialog;
   }
@@ -70,7 +90,13 @@ brandObserver.observe(document.body, { childList: true, subtree: true });
     if (btn) {
       e.preventDefault();
       const dialog = ensureSettingsDialog();
-      dialog.showModal();
+      const select = dialog.querySelector('#themeSelect');
+      if (select) select.value = localStorage.getItem('mangaShelfTheme') || 'current';
+      if (typeof dialog.showModal === 'function') {
+        dialog.showModal();
+      } else {
+        dialog.setAttribute('open', '');
+      }
     }
   });
 

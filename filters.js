@@ -1,18 +1,8 @@
 const genres = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Science fiction', 'Slice of life', 'Sports', 'Supernatural'];
 const categories = ['Visual style', 'Main cast', 'Supporting cast', 'Character depth', 'Character chemistry', 'Plot', 'Pacing', 'World-building', 'Dialogue', 'Humor', 'Drama', 'Emotional impact', 'Themes', 'Originality', 'Panel composition', 'Action', 'Romance', 'Atmosphere', 'Ending', 'Reread value'];
-const rankingScores = { Dandadan: [9.2, 9, 8.8, 8.7, 9.1, 8.9, 8.6, 8.8, 9.1, 9.4, 8.3, 8.9, 8.6, 9.2, 9.3, 9.1, 7.8, 9, 8.5, 9], 'Blue Period': [9.4, 9.3, 8.7, 9.5, 8.9, 8.8, 8.2, 8.7, 9.2, 7.2, 9.5, 9.4, 9.6, 9, 9.2, 6.5, 7.5, 9.1, 8.8, 9.4], Frieren: [9.5, 9.7, 9, 9.6, 9.5, 9.4, 9, 9.8, 9.6, 7.5, 9.7, 9.8, 9.7, 9.2, 9.6, 7.8, 8.4, 9.9, 9.4, 9.8], 'Witch Hat Atelier': [9.8, 9.1, 8.9, 9, 8.8, 9, 8.5, 9.9, 9.3, 7.8, 8.9, 9.2, 9.3, 9.7, 9.8, 6.9, 7.2, 9.7, 8.4, 9.5] };
-const defaultSeedManga = [
-  { id: 'manga-dandadan', title: 'Dandadan', author: 'Yukinobu Tatsu', genre: 'Action / Supernatural', cover: 'cover-dandadan', chapter: 'VOL. 04', tags: ['Action', 'Supernatural', 'Aliens', 'Ghosts'], notes: 'Chaotic, funny, and impossible to put down.' },
-  { id: 'manga-blue-period', title: 'Blue Period', author: 'Tsubasa Yamaguchi', genre: 'Drama / Art', cover: 'cover-blue', chapter: 'VOL. 08', tags: ['Drama', 'Art', 'School', 'Growth'], notes: 'A quiet story about finding a language for feeling.' },
-  { id: 'manga-frieren', title: 'Frieren', author: 'Kanehito Yamada', genre: 'Fantasy / Adventure', cover: 'cover-frieren', chapter: 'VOL. 06', tags: ['Fantasy', 'Adventure', 'Magic', 'Melancholy'], notes: 'A tender reminder that time gives small moments their weight.' },
-  { id: 'manga-witch-hat', title: 'Witch Hat Atelier', author: 'Kamome Shirahama', genre: 'Fantasy / Magic', cover: 'cover-witch', chapter: 'VOL. 12', tags: ['Fantasy', 'Magic', 'Art', 'Wonder'], notes: 'Every page feels like opening a secret door into another world.' },
-];
-function mergeWithDefaultManga(list) {
-  const existingTitles = new Set((list || []).map((m) => (m.title || '').trim().toLowerCase()));
-  const missing = defaultSeedManga.filter((d) => !existingTitles.has(d.title.toLowerCase()));
-  return [...(list || []), ...missing];
-}
-let allManga = mergeWithDefaultManga(JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]'));
+const rankingScores = {};
+const cachedEntries = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
+let allManga = cachedEntries.filter((item) => !item.id?.startsWith('manga-dandadan') && !item.id?.startsWith('manga-blue') && !item.id?.startsWith('manga-frieren') && !item.id?.startsWith('manga-witch'));
 const genreCheckboxes = document.querySelector('#genreCheckboxes');
 const categorySelect = document.querySelector('#filterCategory');
 genreCheckboxes.innerHTML = genres.map((genre) => `<label class="checkbox-option"><input type="checkbox" value="${genre}" />${genre}</label>`).join('');
@@ -31,9 +21,10 @@ MangaAuth.getUser().then((user) => {
 }).catch(() => {});
 
 function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
   document.body.dataset.theme = theme;
   localStorage.setItem('mangaShelfTheme', theme);
-  themeSelect.value = theme;
+  if (themeSelect) themeSelect.value = theme;
 }
 
 document.querySelector('#openSettings').addEventListener('click', () => settingsDialog.showModal());
@@ -101,7 +92,7 @@ fetch('/api/manga')
   .then((res) => (res.ok ? res.json() : null))
   .then((response) => {
     if (response?.manga) {
-      allManga = mergeWithDefaultManga(response.manga);
+      allManga = response.manga;
       localStorage.setItem('mangaJournalEntries', JSON.stringify(allManga));
       render();
     }

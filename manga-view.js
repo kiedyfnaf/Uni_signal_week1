@@ -3,12 +3,7 @@ const params = new URLSearchParams(window.location.search);
 
 const ratingGroups = ['Visual style', 'Action', 'Main cast', 'Supporting cast', 'Story', 'World', 'Emotion', 'Craft', 'Experience', 'Identity'];
 const rankingCategories = ['Visual style', 'Main cast', 'Supporting cast', 'Character depth', 'Character chemistry', 'Plot', 'Pacing', 'World-building', 'Dialogue', 'Humor', 'Drama', 'Emotional impact', 'Themes', 'Originality', 'Panel composition', 'Action', 'Romance', 'Atmosphere', 'Ending', 'Reread value'];
-const rankingScores = {
-  Dandadan: [9.2, 9.0, 8.8, 8.7, 9.1, 8.9, 8.6, 8.8, 9.1, 9.4, 8.3, 8.9, 8.6, 9.2, 9.3, 9.1, 7.8, 9.0, 8.5, 9.0],
-  'Blue Period': [9.4, 9.3, 8.7, 9.5, 8.9, 8.8, 8.2, 8.7, 9.2, 7.2, 9.5, 9.4, 9.6, 9.0, 9.2, 6.5, 7.5, 9.1, 8.8, 9.4],
-  Frieren: [9.5, 9.7, 9.0, 9.6, 9.5, 9.4, 9.0, 9.8, 9.6, 7.5, 9.7, 9.8, 9.7, 9.2, 9.6, 7.8, 8.4, 9.9, 9.4, 9.8],
-  'Witch Hat Atelier': [9.8, 9.1, 8.9, 9.0, 8.8, 9.0, 8.5, 9.9, 9.3, 7.8, 8.9, 9.2, 9.3, 9.7, 9.8, 6.9, 7.2, 9.7, 8.4, 9.5],
-};
+const rankingScores = {};
 const ratingDescriptions = {
   'Visual style': 'How strong and distinctive the manga looks overall.',
   'Main cast': 'How compelling and memorable the central characters are.',
@@ -272,11 +267,13 @@ async function initView() {
             <option value="dropped" ${readingProgress.status === 'dropped' ? 'selected' : ''}>Dropped</option>
           </select>
         </label>
-        <div class="chapter-stepper" title="Current chapter progress">
-          <button id="chapterMinusBtn" type="button" aria-label="Previous chapter">−</button>
-          <span id="chapterDisplay">Ch. ${readingProgress.currentChapter || 1}</span>
-          <button id="chapterPlusBtn" type="button" aria-label="Next chapter">＋</button>
-        </div>
+        <label class="chapter-input-container" style="font: 500 11px 'DM Mono', monospace; text-transform: uppercase; color: #766d64; display: flex; align-items: center; gap: 8px;">
+          Chapter
+          <div class="chapter-input-wrap">
+            <span class="chapter-prefix">Ch.</span>
+            <input id="chapterInput" type="number" min="0" max="99999" step="1" value="${readingProgress.currentChapter || 1}" class="chapter-number-input" placeholder="561" aria-label="Current chapter number" />
+          </div>
+        </label>
       </div>
       <div class="reading-controls-group">
         ${viewedButtonMarkup}
@@ -372,11 +369,9 @@ async function initView() {
     showToast(isNowFav ? 'Added to your favorites!' : 'Removed from favorites.');
   });
 
-  // Handle Reading Status & Chapter Stepper
+  // Handle Reading Status & Chapter Number Input
   const statusSelect = document.querySelector('#readingStatusSelect');
-  const chapterDisplay = document.querySelector('#chapterDisplay');
-  const minusBtn = document.querySelector('#chapterMinusBtn');
-  const plusBtn = document.querySelector('#chapterPlusBtn');
+  const chapterInput = document.querySelector('#chapterInput');
 
   function saveProgress() {
     localStorage.setItem(progressKey, JSON.stringify(readingProgress));
@@ -388,18 +383,21 @@ async function initView() {
     showToast(`Status updated to ${statusSelect.options[statusSelect.selectedIndex].text}`);
   });
 
-  minusBtn?.addEventListener('click', () => {
-    if (readingProgress.currentChapter > 1) {
-      readingProgress.currentChapter -= 1;
-      chapterDisplay.textContent = `Ch. ${readingProgress.currentChapter}`;
+  chapterInput?.addEventListener('input', () => {
+    const val = parseInt(chapterInput.value, 10);
+    if (!isNaN(val) && val >= 0) {
+      readingProgress.currentChapter = val;
       saveProgress();
     }
   });
 
-  plusBtn?.addEventListener('click', () => {
-    readingProgress.currentChapter = (readingProgress.currentChapter || 1) + 1;
-    chapterDisplay.textContent = `Ch. ${readingProgress.currentChapter}`;
-    saveProgress();
+  chapterInput?.addEventListener('change', () => {
+    const val = parseInt(chapterInput.value, 10);
+    if (!isNaN(val) && val >= 0) {
+      readingProgress.currentChapter = val;
+      saveProgress();
+      showToast(`Chapter progress saved: Ch. ${val}`);
+    }
   });
 
   // Handle Visitor Rating Form (only exists for logged in users)

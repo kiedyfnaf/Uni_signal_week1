@@ -108,81 +108,13 @@ export async function ensureMangaSchema(db) {
 
   // Ensure initial bookshelf sample manga exist in database
   try {
-    const seedMangas = [
-      {
-        id: 'manga-dandadan',
-        title: 'Dandadan',
-        author: 'Yukinobu Tatsu',
-        genre: 'Action / Supernatural',
-        cover: 'cover-dandadan',
-        chapter: 'VOL. 04',
-        tags: ['Action', 'Supernatural', 'Aliens', 'Ghosts'],
-        notes: 'Chaotic, funny, and impossible to put down.',
-        created_at: '2026-09-19 10:00:00',
-      },
-      {
-        id: 'manga-blue-period',
-        title: 'Blue Period',
-        author: 'Tsubasa Yamaguchi',
-        genre: 'Drama / Art',
-        cover: 'cover-blue',
-        chapter: 'VOL. 08',
-        tags: ['Drama', 'Art', 'School', 'Growth'],
-        notes: 'A quiet story about finding a language for feeling.',
-        created_at: '2026-09-18 10:00:00',
-      },
-      {
-        id: 'manga-frieren',
-        title: 'Frieren',
-        author: 'Kanehito Yamada',
-        genre: 'Fantasy / Adventure',
-        cover: 'cover-frieren',
-        chapter: 'VOL. 06',
-        tags: ['Fantasy', 'Adventure', 'Magic', 'Melancholy'],
-        notes: 'A tender reminder that time gives small moments their weight.',
-        created_at: '2026-09-17 10:00:00',
-      },
-      {
-        id: 'manga-witch-hat',
-        title: 'Witch Hat Atelier',
-        author: 'Kamome Shirahama',
-        genre: 'Fantasy / Magic',
-        cover: 'cover-witch',
-        chapter: 'VOL. 12',
-        tags: ['Fantasy', 'Magic', 'Art', 'Wonder'],
-        notes: 'Every page feels like opening a secret door into another world.',
-        created_at: '2026-09-16 10:00:00',
-      },
-    ];
-
     let userRow = await db.prepare('SELECT id FROM users ORDER BY created_at ASC LIMIT 1').first();
     if (!userRow || !userRow.id) {
       const defaultHash = await hashPassword('admin12345');
       await db.prepare(`INSERT OR IGNORE INTO users (id, username, password_hash, role) VALUES ('admin-user-id', 'admin', ?, 'admin')`).bind(defaultHash).run();
-      userRow = { id: 'admin-user-id' };
-    }
-    const creatorId = userRow.id;
-
-    for (const m of seedMangas) {
-      const existing = await db.prepare('SELECT id FROM manga WHERE id = ? OR LOWER(title) = LOWER(?)').bind(m.id, m.title).first();
-      if (!existing) {
-        await db.prepare(`INSERT OR IGNORE INTO manga (id, title, author, genre, link_url, link_description, cover, chapter, tags_json, notes, notes_attachment_json, cover_image, panel_images_json, ratings_json, creator_id, created_at)
-          VALUES (?, ?, ?, ?, '', '', ?, ?, ?, ?, '{}', '', '[]', '[]', ?, ?)`).bind(
-          m.id,
-          m.title,
-          m.author,
-          m.genre,
-          m.cover,
-          m.chapter,
-          JSON.stringify(m.tags),
-          m.notes,
-          creatorId,
-          m.created_at,
-        ).run();
-      }
     }
   } catch (seedErr) {
-    console.warn('Seed manga ensure check (non-fatal):', seedErr);
+    console.warn('Initial admin user check (non-fatal):', seedErr);
   }
 }
 

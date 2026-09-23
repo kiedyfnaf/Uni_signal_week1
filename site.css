@@ -20,28 +20,72 @@
 .photo-modal-close{position:absolute;top:-18px;right:-18px;width:36px;height:36px;border-radius:50%;background:#ffffff;border:none;color:#24211f;font-size:20px;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:transform .15s}
 .photo-modal-close:hover{transform:scale(1.1);background:#f2ede4}
 
-/* 1. Manga front cover image framing and size */
+/* Sidebar sticky on main page so it stays in place while scrolling down */
+.sidebar {
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh !important;
+  overflow-y: auto !important;
+  flex-shrink: 0 !important;
+}
+
+/* 1. Manga front cover image framing and panel proportions (2:3 aspect ratio, fitting more per row) */
+.manga-grid:not(.list-view) {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important;
+  gap: 24px 16px !important;
+  align-items: start !important;
+}
+.manga-grid:not(.list-view) .manga-card {
+  min-width: 0 !important;
+}
+.card-cover-link {
+  display: block !important;
+  width: 100% !important;
+  aspect-ratio: 2 / 3 !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+  background: var(--card-subtle, #f1ede6) !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.07) !important;
+  position: relative !important;
+  cursor: pointer !important;
+}
 .card-cover-image {
   width: 100% !important;
-  height: 247px !important;
+  height: 100% !important;
+  aspect-ratio: 2 / 3 !important;
   object-fit: cover !important;
   object-position: center top !important;
-  border-radius: 7px !important;
+  border-radius: 6px !important;
   display: block !important;
-  background: #f1ede6;
+  background: var(--card-subtle, #f1ede6);
+}
+.cover {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 2 / 3 !important;
+  min-height: auto !important;
+  border-radius: 6px !important;
+  padding: 15px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
 }
 .view-cover {
   width: 230px !important;
-  height: 325px !important;
+  height: 335px !important;
+  aspect-ratio: 2 / 3 !important;
   object-fit: cover !important;
   object-position: center top !important;
   border-radius: 7px !important;
   display: block !important;
-  background: #f1ede6;
+  background: var(--card-subtle, #f1ede6);
 }
 .cover-preview img {
   width: 120px !important;
-  height: 165px !important;
+  height: 175px !important;
+  aspect-ratio: 2 / 3 !important;
   object-fit: cover !important;
   object-position: center top !important;
   border-radius: 6px !important;
@@ -161,39 +205,187 @@
   font: 13px Manrope !important;
 }
 
-/* Themes across all pages */
+/* Chapter direct number input */
+.chapter-input-container {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+.chapter-input-wrap {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: var(--white, #ffffff) !important;
+  border: 1px solid var(--line, #ded6cc) !important;
+  border-radius: 6px !important;
+  padding: 0 10px !important;
+  height: 34px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
+  box-sizing: border-box !important;
+}
+.chapter-prefix {
+  font: 600 11px 'DM Mono', monospace !important;
+  color: var(--muted, #766d64) !important;
+  margin-right: 4px !important;
+}
+.chapter-number-input {
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font: 700 13px 'DM Mono', monospace !important;
+  color: var(--ink, #24211f) !important;
+  width: 70px !important;
+  padding: 0 !important;
+}
+.chapter-number-input:focus {
+  outline: none !important;
+}
+
+/* ========================================================
+   THEME COLOR ENGINE ACROSS ALL PAGES
+   ======================================================== */
+:root, [data-theme="current"], body[data-theme="current"] {
+  --paper: #f8f5ef;
+  --white: #fffdfa;
+  --ink: #24211f;
+  --muted: #817a72;
+  --line: #e8e1d8;
+  --sidebar-bg: #fbf9f4;
+  --card-subtle: #f1ede6;
+  --coral: #ff765f;
+  --yellow: #f7c94b;
+  --blue: #b9d7f6;
+  --mint: #c7e6d2;
+}
+
 [data-theme="ocean"], body[data-theme="ocean"] {
-  --paper: #edf6f1;
-  --white: #f9fffc;
-  --ink: #193834;
-  --muted: #5a7b75;
-  --line: #cfe1da;
-  --coral: #2d9b87;
-  --yellow: #cce5a8;
-  --blue: #b9dfe3;
-  --mint: #bfe3d1;
+  --paper: #edf7f3;
+  --white: #f8fdfb;
+  --ink: #14352f;
+  --muted: #4e726a;
+  --line: #c5dfd6;
+  --sidebar-bg: #e1efe8;
+  --card-subtle: #d6ebe1;
+  --coral: #1e997f;
+  --yellow: #b5da87;
+  --blue: #98d1d8;
+  --mint: #a2ddbf;
 }
+
 [data-theme="red"], body[data-theme="red"] {
-  --paper: #211d20;
-  --white: #2d2528;
-  --ink: #fae9df;
-  --muted: #c0a8a0;
-  --line: #563d3f;
-  --coral: #ef6a55;
-  --yellow: #d6a34c;
-  --blue: #7e9ca3;
-  --mint: #7daf8d;
+  --paper: #181415;
+  --white: #221b1e;
+  --ink: #f9ebe3;
+  --muted: #bfa9a2;
+  --line: #3f2d32;
+  --sidebar-bg: #130f11;
+  --card-subtle: #2d2226;
+  --coral: #f15b49;
+  --yellow: #e4aa44;
+  --blue: #5b8796;
+  --mint: #5e9c78;
 }
-[data-theme="red"] .site-rail, body[data-theme="red"] .site-rail, [data-theme="red"] .sidebar, body[data-theme="red"] .sidebar {
-  background: #191619 !important;
-  border-color: #563d3f !important;
+
+[data-theme="midnight"], body[data-theme="midnight"] {
+  --paper: #0c1222;
+  --white: #162035;
+  --ink: #f1f5f9;
+  --muted: #94a3b8;
+  --line: #27364f;
+  --sidebar-bg: #090e1a;
+  --card-subtle: #1e2c45;
+  --coral: #38bdf8;
+  --yellow: #facc15;
+  --blue: #60a5fa;
+  --mint: #34d399;
 }
-[data-theme="red"] .editor-topbar, body[data-theme="red"] .editor-topbar, [data-theme="red"] .topbar, body[data-theme="red"] .topbar {
-  border-color: #563d3f !important;
+
+[data-theme="monochrome"], body[data-theme="monochrome"] {
+  --paper: #f4f4f4;
+  --white: #ffffff;
+  --ink: #111111;
+  --muted: #666666;
+  --line: #dcdcdc;
+  --sidebar-bg: #eaeaea;
+  --card-subtle: #ebebeb;
+  --coral: #222222;
+  --yellow: #888888;
+  --blue: #555555;
+  --mint: #444444;
 }
-[data-theme="ocean"] .site-rail, body[data-theme="ocean"] .site-rail, [data-theme="ocean"] .sidebar, body[data-theme="ocean"] .sidebar {
-  background: #e7f2ed !important;
-  border-color: #cfe1da !important;
+
+/* Dynamic theme variables applied across all pages & elements */
+body {
+  background: var(--paper) !important;
+  color: var(--ink) !important;
+  transition: background .2s ease, color .2s ease;
+}
+.sidebar, .site-rail {
+  background: var(--sidebar-bg) !important;
+  border-color: var(--line) !important;
+}
+.topbar, .editor-topbar {
+  border-color: var(--line) !important;
+}
+.brand, .mobile-brand, .welcome-row h1, .view-hero h1, .editor-intro h1, .section-heading h2, .panel-heading h2, .draft-copy h2, .activity-panel h2 {
+  color: var(--ink) !important;
+}
+.subheading, .view-byline, .panel-copy, .dialog-copy, .empty-state, .card-meta, .manga-info p, .stat-card small {
+  color: var(--muted) !important;
+}
+.search-box {
+  background: var(--card-subtle) !important;
+  border-color: var(--line) !important;
+  color: var(--muted) !important;
+}
+.search-box input {
+  color: var(--ink) !important;
+}
+.editor-panel, .view-notes, .view-rankings, .reading-progress-card, .visitor-rating-box, .draft-card, .history-item, .activity-panel, .settings-dialog, .post-dialog {
+  background: var(--white) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.ranking-row, .filter-result {
+  background: var(--white) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.ranking-row strong, .filter-result strong {
+  color: var(--ink) !important;
+}
+.settings-button, .view-toggle, .filter-favorites-btn, .button.login-button, .viewed-action-btn, .save-action-btn {
+  background: var(--white) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.settings-button:hover, .view-toggle:hover, .filter-favorites-btn:hover, .button.login-button:hover {
+  background: var(--card-subtle) !important;
+  border-color: var(--coral) !important;
+}
+.button-dark, .view-toggle.active {
+  background: var(--ink) !important;
+  color: var(--paper) !important;
+}
+.metric-strip {
+  border-color: var(--line) !important;
+}
+.metric-strip > div, .metric-history {
+  border-color: var(--line) !important;
+}
+.metric-strip strong {
+  color: var(--ink) !important;
+}
+input, select, textarea {
+  background: var(--white) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+.nav-item {
+  color: var(--muted) !important;
+}
+.nav-item.active {
+  background: var(--card-subtle) !important;
+  color: var(--ink) !important;
 }
 
 /* 4. Top right corner user avatar text and background perfectly centered */
