@@ -3,7 +3,6 @@ const params = new URLSearchParams(window.location.search);
 
 const ratingGroups = ['Visual style', 'Action', 'Main cast', 'Supporting cast', 'Story', 'World', 'Emotion', 'Craft', 'Experience', 'Identity'];
 const rankingCategories = ['Visual style', 'Main cast', 'Supporting cast', 'Character depth', 'Character chemistry', 'Plot', 'Pacing', 'World-building', 'Dialogue', 'Humor', 'Drama', 'Emotional impact', 'Themes', 'Originality', 'Panel composition', 'Action', 'Romance', 'Atmosphere', 'Ending', 'Reread value'];
-const rankingScores = {};
 const ratingDescriptions = {
   'Visual style': 'How strong and distinctive the manga looks overall.',
   'Main cast': 'How compelling and memorable the central characters are.',
@@ -63,11 +62,6 @@ function toggleFavorite(identifier) {
   else list.splice(index, 1);
   localStorage.setItem('mangaSavedFavorites', JSON.stringify(list));
   return nowFavorited;
-}
-
-function rankingsFor(title) {
-  const scores = rankingScores[title] || rankingCategories.map((_, index) => Number((7 + ((index * 7) % 29) / 10).toFixed(1)));
-  return rankingCategories.map((category, index) => ({ category, score: scores[index] }));
 }
 
 async function initView() {
@@ -156,10 +150,10 @@ async function initView() {
     if (savedProgress) readingProgress = savedProgress;
   } catch {}
 
-  const ratings = entry?.ratings?.length ? entry.ratings : rankingsFor(title);
+  const ratings = entry?.ratings?.length ? entry.ratings : [];
   const ratingTotal = ratings.reduce((sum, rating) => sum + rating.score, 0);
   const ratingScale = ratings.length && Math.max(...ratings.map((rating) => rating.score)) > 10 ? 20 : 10;
-  const personalAverage = ratings.reduce((sum, rating) => sum + rating.score, 0) / ratings.length / ratingScale * 10;
+  const personalAverage = ratings.length ? (ratings.reduce((sum, rating) => sum + rating.score, 0) / ratings.length / ratingScale * 10) : null;
 
   const visitorRatings = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}');
   const visitorRecord = visitorRatings[title] || { ratings: [] };
@@ -173,7 +167,7 @@ async function initView() {
 
   const visitorOwnScore = Array.isArray(visitorRecord) ? null : (visitorRecord.byVisitor?.[visitorKey] ?? null);
   const visitorAverage = visitorScores.length ? visitorScores.reduce((sum, score) => sum + score, 0) / visitorScores.length : null;
-  const combinedAverage = visitorAverage === null ? personalAverage : (personalAverage + visitorAverage) / 2;
+  const combinedAverage = personalAverage === null ? visitorAverage : (visitorAverage === null ? personalAverage : (personalAverage + visitorAverage) / 2);
 
   const coverSrc = manga.coverImage || manga.cover_image;
   const cover = coverSrc
@@ -290,8 +284,8 @@ async function initView() {
         <h1>${escapeHtml(title)}<span>.</span></h1>
         <p class="view-byline">${escapeHtml(manga.author)} · ${escapeHtml(manga.genre)}${creatorMarker}</p>
         <div class="view-score">
-          <strong>${combinedAverage.toFixed(1)}</strong>
-          <span>combined score / 10<br />My score ${personalAverage.toFixed(1)} · Visitors ${visitorAverage === null ? '—' : visitorAverage.toFixed(1)}</span>
+          <strong>${combinedAverage !== null ? combinedAverage.toFixed(1) : (personalAverage !== null ? personalAverage.toFixed(1) : (visitorAverage !== null ? visitorAverage.toFixed(1) : '—'))}</strong>
+          <span>combined score / 10<br />My score ${personalAverage !== null ? personalAverage.toFixed(1) : '—'} · Visitors ${visitorAverage === null ? '—' : visitorAverage.toFixed(1)}</span>
         </div>
         ${tags}
         ${links}
@@ -308,9 +302,9 @@ async function initView() {
       <aside class="view-rankings">
         <div class="panel-heading">
           <div><p class="eyebrow">Manga ranking</p><h2>${ratings.length === 50 ? '50 criteria' : `${ratings.length} categories`}</h2></div>
-          <span class="rating-total">${ratingTotal} / ${ratings.length * ratingScale * 10}</span>
+          <span class="rating-total">${ratings.length ? `${ratingTotal} / ${ratings.length * ratingScale * 10}` : 'No ratings'}</span>
         </div>
-        ${ratingMarkup}
+        ${ratingMarkup || '<p class="empty-state" style="display:block; padding: 10px 0;">No individual criteria scores set for this review yet.</p>'}
       </aside>
     </section>
     ${panels}

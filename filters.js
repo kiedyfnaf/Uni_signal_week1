@@ -1,8 +1,7 @@
 const genres = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Science fiction', 'Slice of life', 'Sports', 'Supernatural'];
 const categories = ['Visual style', 'Main cast', 'Supporting cast', 'Character depth', 'Character chemistry', 'Plot', 'Pacing', 'World-building', 'Dialogue', 'Humor', 'Drama', 'Emotional impact', 'Themes', 'Originality', 'Panel composition', 'Action', 'Romance', 'Atmosphere', 'Ending', 'Reread value'];
-const rankingScores = {};
 const cachedEntries = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
-let allManga = cachedEntries.filter((item) => !item.id?.startsWith('manga-dandadan') && !item.id?.startsWith('manga-blue') && !item.id?.startsWith('manga-frieren') && !item.id?.startsWith('manga-witch'));
+let allManga = cachedEntries;
 const genreCheckboxes = document.querySelector('#genreCheckboxes');
 const categorySelect = document.querySelector('#filterCategory');
 genreCheckboxes.innerHTML = genres.map((genre) => `<label class="checkbox-option"><input type="checkbox" value="${genre}" />${genre}</label>`).join('');
@@ -32,7 +31,7 @@ document.querySelector('#closeSettings').addEventListener('click', () => setting
 settingsDialog.addEventListener('click', (event) => { if (event.target === settingsDialog) settingsDialog.close(); });
 themeSelect.addEventListener('change', () => applyTheme(themeSelect.value));
 applyTheme(localStorage.getItem('mangaShelfTheme') || 'current');
-function scoresFor(manga) { return manga.ratings?.length ? categories.map((category) => { const score = manga.ratings.find((rating) => rating.category === category)?.score ?? 0; return score > 10 ? score / 2 : score; }) : rankingScores[manga.title] || categories.map((_, index) => Number((7 + ((index * 7) % 29) / 10).toFixed(1))); }
+function scoresFor(manga) { return manga.ratings?.length ? categories.map((category) => { const score = manga.ratings.find((rating) => rating.category === category)?.score ?? 0; return score > 10 ? score / 2 : score; }) : categories.map(() => 0); }
 function averageFor(manga) { return scoresFor(manga).reduce((sum, score) => sum + score, 0) / categories.length; }
 function visitorAverageFor(manga) { const ratings = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}')[manga.title]?.ratings || []; return ratings.length ? ratings.reduce((sum, score) => sum + score, 0) / ratings.length : null; }
 function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])); }

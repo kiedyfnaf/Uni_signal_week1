@@ -63,18 +63,6 @@ const rankingCategories = [
   'Ending', 'Reread value',
 ];
 
-const rankingScores = {
-  Dandadan: [9.2, 9.0, 8.8, 8.7, 9.1, 8.9, 8.6, 8.8, 9.1, 9.4, 8.3, 8.9, 8.6, 9.2, 9.3, 9.1, 7.8, 9.0, 8.5, 9.0],
-  'Blue Period': [9.4, 9.3, 8.7, 9.5, 8.9, 8.8, 8.2, 8.7, 9.2, 7.2, 9.5, 9.4, 9.6, 9.0, 9.2, 6.5, 7.5, 9.1, 8.8, 9.4],
-  Frieren: [9.5, 9.7, 9.0, 9.6, 9.5, 9.4, 9.0, 9.8, 9.6, 7.5, 9.7, 9.8, 9.7, 9.2, 9.6, 7.8, 8.4, 9.9, 9.4, 9.8],
-  'Witch Hat Atelier': [9.8, 9.1, 8.9, 9.0, 8.8, 9.0, 8.5, 9.9, 9.3, 7.8, 8.9, 9.2, 9.3, 9.7, 9.8, 6.9, 7.2, 9.7, 8.4, 9.5],
-};
-
-function getRanking(title) {
-  const scores = rankingScores[title] || rankingCategories.map((_, index) => Number((7 + ((index * 7) % 29) / 10).toFixed(1)));
-  return rankingCategories.map((category, index) => ({ category, score: scores[index] }));
-}
-
 function getVisitorAverage(title) {
   const stored = JSON.parse(localStorage.getItem('mangaVisitorRatings') || '{}')[title];
   const ratings = Array.isArray(stored) ? stored : (stored?.ratings || []);
@@ -82,7 +70,8 @@ function getVisitorAverage(title) {
 }
 
 function getPersonalAverage(entry) {
-  const ratings = entry?.ratings?.length ? entry.ratings.map((rating) => rating.score) : getRanking(entry.title).map((rating) => rating.score);
+  if (!entry?.ratings || !entry.ratings.length) return null;
+  const ratings = entry.ratings.map((rating) => rating.score);
   const scale = Math.max(...ratings) > 10 ? 20 : 10;
   return ratings.reduce((sum, score) => sum + score, 0) / ratings.length / scale * 10;
 }
@@ -109,7 +98,7 @@ function renderMangaList(list) {
     const isFavorite = favorites.includes(entry.title) || (entry.id && favorites.includes(entry.id));
     const average = getPersonalAverage(entry);
     const visitorAverage = getVisitorAverage(entry.title);
-    const combined = visitorAverage === null ? average : (average + visitorAverage) / 2;
+    const combined = average === null ? visitorAverage : (visitorAverage === null ? average : (average + visitorAverage) / 2);
 
     const viewUrl = entry.id
       ? `manga-view.html?id=${encodeURIComponent(entry.id)}&title=${encodeURIComponent(entry.title || '')}`
@@ -118,7 +107,7 @@ function renderMangaList(list) {
     const imageSrc = entry.coverImage || entry.cover_image;
     const coverInner = imageSrc
       ? `<img class="card-cover-image" src="${escapeHtml(imageSrc)}" alt="${escapeHtml(entry.title)} cover" />`
-      : `<div class="cover ${escapeHtml(entry.cover || 'cover-witch')}"><span class="cover-kicker">MANGA JOURNAL</span><strong>${escapeHtml(entry.title)}</strong><span class="cover-volume">${escapeHtml(entry.chapter || 'VOL. 01')}</span></div>`;
+      : `<div class="cover ${escapeHtml(entry.cover || 'cover-default')}"><span class="cover-kicker">MANGA JOURNAL</span><strong>${escapeHtml(entry.title)}</strong><span class="cover-volume">${escapeHtml(entry.chapter || 'VOL. 01')}</span></div>`;
 
     const coverMarkup = `<a class="card-cover-link" href="${viewUrl}" aria-label="View ${escapeHtml(entry.title)}">${coverInner}</a>`;
 
@@ -133,9 +122,9 @@ function renderMangaList(list) {
           <p>${escapeHtml(entry.author)} · ${escapeHtml(entry.genre)}</p>
           <small class="creator-label">Created by ${escapeHtml(entry.creatorName || 'MangaShelf')}</small>
           <div class="score-pair">
-            <span class="score">${average.toFixed(1)} <b>★</b><small>My score</small></span>
+            <span class="score">${average !== null ? average.toFixed(1) : '—'} <b>★</b><small>My score</small></span>
             <span class="score visitor-score">${visitorAverage === null ? '—' : visitorAverage.toFixed(1)} <b>★</b><small>Visitors</small></span>
-            <span class="score combined-score">${combined.toFixed(1)} <b>★</b><small>Combined</small></span>
+            <span class="score combined-score">${combined !== null ? combined.toFixed(1) : '—'} <b>★</b><small>Combined</small></span>
           </div>
         </div>
       </div>
@@ -266,10 +255,9 @@ async function hydrateMangaData() {
     console.warn('Could not fetch /api/manga dynamically, reading local cache:', error);
   }
 
-  // Fallback to cache without old hardcoded seeds
+  // Fallback to cache if offline
   const cached = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
-  const listToRender = cached.filter((item) => !item.id?.startsWith('manga-dandadan') && !item.id?.startsWith('manga-blue') && !item.id?.startsWith('manga-frieren') && !item.id?.startsWith('manga-witch'));
-  renderMangaList(listToRender);
+  renderMangaList(cached);
 }
 
 setupAuthUi();

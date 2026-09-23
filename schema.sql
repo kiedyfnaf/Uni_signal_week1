@@ -45,13 +45,6 @@ CREATE INDEX IF NOT EXISTS idx_sessions_token_hash ON sessions(token_hash);
 CREATE INDEX IF NOT EXISTS idx_manga_created_at ON manga(created_at);
 CREATE INDEX IF NOT EXISTS idx_manga_views_user ON manga_views(user_id);
 
--- Initial default admin and sample manga
+-- Initial default admin
 INSERT OR IGNORE INTO users (id, username, password_hash, role) VALUES ('admin-user-id', 'admin', '888019e0ea9ca81014e44bb46592231e:07fa689e47f5cfbebf0bbf9b79d239c0fa1a942071f0ea0949d2112a2bfdfa86', 'admin');
-
-INSERT OR IGNORE INTO manga (id, title, author, genre, link_url, link_description, cover, chapter, tags_json, notes, notes_attachment_json, cover_image, panel_images_json, ratings_json, creator_id, created_at)
-VALUES
-  ('manga-dandadan', 'Dandadan', 'Yukinobu Tatsu', 'Action / Supernatural', '', '', 'cover-dandadan', 'VOL. 04', '["Action","Supernatural","Aliens","Ghosts"]', 'Chaotic, funny, and impossible to put down.', '{}', '', '[]', '[]', 'admin-user-id', '2026-09-19 10:00:00'),
-  ('manga-blue-period', 'Blue Period', 'Tsubasa Yamaguchi', 'Drama / Art', '', '', 'cover-blue', 'VOL. 08', '["Drama","Art","School","Growth"]', 'A quiet story about finding a language for feeling.', '{}', '', '[]', '[]', 'admin-user-id', '2026-09-18 10:00:00'),
-  ('manga-frieren', 'Frieren', 'Kanehito Yamada', 'Fantasy / Adventure', '', '', 'cover-frieren', 'VOL. 06', '["Fantasy","Adventure","Magic","Melancholy"]', 'A tender reminder that time gives small moments their weight.', '{}', '', '[]', '[]', 'admin-user-id', '2026-09-17 10:00:00'),
-  ('manga-witch-hat', 'Witch Hat Atelier', 'Kamome Shirahama', 'Fantasy / Magic', '', '', 'cover-witch', 'VOL. 12', '["Fantasy","Magic","Art","Wonder"]', 'Every page feels like opening a secret door into another world.', '{}', '', '[]', '[]', 'admin-user-id', '2026-09-16 10:00:00');
 
