@@ -123,6 +123,14 @@ async function initView() {
     }
   }
 
+  if (entry && entry.title) {
+    // This will format the tab as "Naruto - MangaCave"
+    document.title = `${entry.title} - MangaCave`; 
+  } else {
+    // Fallback if the manga isn't found
+    document.title = 'Manga Not Found - MangaCave';
+  }
+
   // 3. Fallback to cached entries in localStorage
   if (!entry) {
     const cachedEntries = JSON.parse(localStorage.getItem('mangaJournalEntries') || '[]');
