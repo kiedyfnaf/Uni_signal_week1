@@ -58,11 +58,11 @@ brandObserver.observe(document.body, { childList: true, subtree: true });
         <p>Pick a theme to customize colors across every page of MangaCave.</p>
         <label>Theme &amp; Accent
           <select id="themeSelect">
-            <option value="midnight">Warm Paper (Original Light)</option>
-            <option value="ocean">Teal Ocean (Cool Green-Blue)</option>
-            <option value="red">Red Obsidian (Dark Archive)</option>
-            <option value="current">Midnight Blue (Deep Dark Slate)</option>
-            <option value="monochrome">Monochrome (High Contrast)</option>
+            <option value="midnight">Midnight Blue (Deep Dark Slate) (dark)</option>
+            <option value="current">Warm Paper (Original Light) (light)</option>
+            <option value="ocean">Teal Ocean (Cool Green-Blue) (light)</option>
+            <option value="red">Red Obsidian (Dark Archive) (dark)</option>
+            <option value="monochrome">Monochrome (High Contrast) (light)</option>
           </select>
         </label>
         <p class="theme-applied-note" style="margin-top: 14px; font: 500 11px 'DM Mono', monospace; color: var(--coral, #ff765f);">✓ Saved across all pages</p>
